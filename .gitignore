@@ -1,0 +1,25 @@
+# ===== Backend (Java / Maven / Spring Boot) =====
+signalville-backend/target/
+!signalville-backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.log
+
+# ===== Frontend (Angular / Node) =====
+signalville-frontend/node_modules/
+signalville-frontend/dist/
+signalville-frontend/.angular/
+npm-debug.log*
+
+# ===== Secrets & config locale =====
+.env
+*.env
+application-local.yml
+
+# ===== IDE / éditeurs =====
+.idea/
+.vscode/
+*.iml
+
+# ===== Système =====
+.DS_Store
+Thumbs.db

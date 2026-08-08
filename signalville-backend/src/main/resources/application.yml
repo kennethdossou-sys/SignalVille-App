@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: signalville-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/signalville
+    username: signalville
+    password: signalville
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+  flyway:
+    enabled: true
+
+server:
+  port: 8080

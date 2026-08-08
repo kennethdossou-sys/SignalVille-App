@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: signalville-db
+    environment:
+      POSTGRES_DB: signalville
+      POSTGRES_USER: signalville
+      POSTGRES_PASSWORD: signalville
+    ports:
+      - "5433:5432"
+    volumes:
+      - signalville_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U signalville -d signalville"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  signalville_pgdata:
