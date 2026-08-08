@@ -20,5 +20,32 @@ spring:
   flyway:
     enabled: true
 
+  servlet:
+    multipart:
+      # 5 Mo par photo (contrainte metier), 3 photos max + le champ JSON
+      max-file-size: 5MB
+      max-request-size: 20MB
+
 server:
   port: 8080
+  servlet:
+    # Le contrat OpenAPI declare le serveur sur http://localhost:8080/api/v1
+    context-path: /api/v1
+
+signalville:
+  jwt:
+    # Secret de developpement uniquement. En production : variable d'environnement.
+    secret: ${SIGNALVILLE_JWT_SECRET:ZGV2LW9ubHktc2lnbmFsdmlsbGUtc2VjcmV0LWtleS1obWFjLXNoYTI1Ni1lcGYtYWZyaWNh}
+    access-token-ttl-seconds: 900        # 15 minutes
+    refresh-token-ttl-days: 7
+    issuer: signalville
+  storage:
+    upload-dir: ./uploads/reports
+    max-photo-size-bytes: 5242880        # 5 Mo
+    allowed-content-types: image/jpeg,image/png
+  cors:
+    allowed-origins: http://localhost:4200
+
+logging:
+  level:
+    africa.epf.signalville_backend: DEBUG
