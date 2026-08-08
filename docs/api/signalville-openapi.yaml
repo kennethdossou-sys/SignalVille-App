@@ -1,0 +1,1451 @@
+openapi: 3.1.0
+info:
+  title: API SignalVille
+  version: 1.0.0
+  description: >
+    API REST de la plateforme SignalVille, destinée à la gestion des incidents urbains,
+    des utilisateurs, des interventions, des notifications et des statistiques.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Environnement local
+
+tags:
+  - name: Authentification
+  - name: Utilisateurs
+  - name: Catégories
+  - name: Signalements
+  - name: Interventions
+  - name: Notifications
+  - name: Tableaux de bord
+  - name: Statistiques
+  - name: Administration
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/register:
+    post:
+      tags: [Authentification]
+      summary: Inscrire un citoyen
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Compte citoyen créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Adresse e-mail déjà utilisée
+
+  /auth/login:
+    post:
+      tags: [Authentification]
+      summary: Authentifier un utilisateur
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authentification réussie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/refresh:
+    post:
+      tags: [Authentification]
+      summary: Rafraîchir le token d'accès
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Nouveau token d'accès émis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/logout:
+    post:
+      tags: [Authentification]
+      summary: Déconnexion (révocation du refresh token)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '204':
+          description: Déconnexion effectuée, refresh token révoqué
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/forgot-password:
+    post:
+      tags: [Authentification]
+      summary: Demander une réinitialisation du mot de passe
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '202':
+          description: Demande prise en compte
+
+  /auth/reset-password:
+    post:
+      tags: [Authentification]
+      summary: Réinitialiser le mot de passe
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, newPassword]
+              properties:
+                token:
+                  type: string
+                newPassword:
+                  type: string
+                  minLength: 8
+      responses:
+        '204':
+          description: Mot de passe réinitialisé
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /users/me:
+    get:
+      tags: [Utilisateurs]
+      summary: Consulter son profil
+      responses:
+        '200':
+          description: Profil courant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+    put:
+      tags: [Utilisateurs]
+      summary: Modifier son profil
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profil mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /users:
+    get:
+      tags: [Utilisateurs]
+      summary: Lister les utilisateurs
+      description: Réservé aux administrateurs.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - name: role
+          in: query
+          schema:
+            $ref: '#/components/schemas/RoleName'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/AccountStatus'
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Liste paginée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPage'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Utilisateurs]
+      summary: Créer un compte interne
+      description: Réservé aux administrateurs.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInternalUserRequest'
+      responses:
+        '201':
+          description: Compte créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /users/{userId}:
+    get:
+      tags: [Utilisateurs]
+      summary: Consulter un utilisateur
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Utilisateur trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Utilisateurs]
+      summary: Modifier un utilisateur
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUpdateUserRequest'
+      responses:
+        '200':
+          description: Utilisateur mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /users/{userId}/status:
+    patch:
+      tags: [Utilisateurs]
+      summary: Modifier le statut d'un compte
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status, reason]
+              properties:
+                status:
+                  $ref: '#/components/schemas/AccountStatus'
+                reason:
+                  type: string
+                  minLength: 5
+      responses:
+        '200':
+          description: Statut modifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /categories:
+    get:
+      tags: [Catégories]
+      summary: Lister les catégories actives
+      security: []
+      responses:
+        '200':
+          description: Liste des catégories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryResponse'
+    post:
+      tags: [Catégories]
+      summary: Créer une catégorie
+      description: Réservé aux administrateurs.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+      responses:
+        '201':
+          description: Catégorie créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+
+  /categories/{categoryId}:
+    put:
+      tags: [Catégories]
+      summary: Modifier une catégorie
+      parameters:
+        - $ref: '#/components/parameters/CategoryId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+      responses:
+        '200':
+          description: Catégorie modifiée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+
+  /categories/{categoryId}/status:
+    patch:
+      tags: [Catégories]
+      summary: Activer ou désactiver une catégorie
+      parameters:
+        - $ref: '#/components/parameters/CategoryId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [active]
+              properties:
+                active:
+                  type: boolean
+      responses:
+        '204':
+          description: Statut modifié
+
+  /reports:
+    post:
+      tags: [Signalements]
+      summary: Créer un signalement
+      description: Réservé aux citoyens authentifiés.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateReportMultipart'
+      responses:
+        '201':
+          description: Signalement créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    get:
+      tags: [Signalements]
+      summary: Lister les signalements visibles par l'utilisateur
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ReportStatus'
+        - name: categoryId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: priority
+          in: query
+          schema:
+            $ref: '#/components/schemas/Priority'
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Liste paginée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportPage'
+
+  /reports/{reportId}:
+    get:
+      tags: [Signalements]
+      summary: Consulter un signalement
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      responses:
+        '200':
+          description: Détail du signalement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Signalements]
+      summary: Modifier un signalement au statut NOUVEAU
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UpdateReportMultipart'
+      responses:
+        '200':
+          description: Signalement modifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+        '409':
+          description: Modification impossible selon le statut courant
+
+  /reports/{reportId}/cancel:
+    post:
+      tags: [Signalements]
+      summary: Annuler un signalement au statut NOUVEAU
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Signalement annulé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+
+  /reports/{reportId}/reject:
+    post:
+      tags: [Interventions]
+      summary: Rejeter un signalement
+      description: Réservé au superviseur, uniquement depuis le statut NOUVEAU.
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Signalement rejeté
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+
+  /reports/{reportId}/assign:
+    post:
+      tags: [Interventions]
+      summary: Affecter un signalement à un agent
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignReportRequest'
+      responses:
+        '201':
+          description: Intervention créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterventionResponse'
+
+  /reports/{reportId}/reassign:
+    post:
+      tags: [Interventions]
+      summary: Réaffecter un incident
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReassignReportRequest'
+      responses:
+        '201':
+          description: Nouvelle intervention créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterventionResponse'
+
+  /reports/{reportId}/start:
+    post:
+      tags: [Interventions]
+      summary: Démarrer l'intervention
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      responses:
+        '200':
+          description: Intervention démarrée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterventionResponse'
+
+  /reports/{reportId}/resolve:
+    post:
+      tags: [Interventions]
+      summary: Déclarer l'incident résolu
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResolveReportMultipart'
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      responses:
+        '200':
+          description: Incident déclaré résolu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterventionResponse'
+
+  /reports/{reportId}/close:
+    post:
+      tags: [Interventions]
+      summary: Clôturer un incident résolu
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                publicComment:
+                  type: string
+      responses:
+        '200':
+          description: Incident clôturé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+
+  /reports/{reportId}/reopen:
+    post:
+      tags: [Interventions]
+      summary: Rouvrir un incident
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Incident rouvert
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+
+  /reports/{reportId}/history:
+    get:
+      tags: [Signalements]
+      summary: Consulter l'historique du signalement
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      responses:
+        '200':
+          description: Historique visible selon le rôle
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HistoryResponse'
+
+  /reports/{reportId}/notes:
+    get:
+      tags: [Interventions]
+      summary: Lister les notes visibles
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      responses:
+        '200':
+          description: Notes du signalement
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NoteResponse'
+    post:
+      tags: [Interventions]
+      summary: Ajouter une note
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNoteRequest'
+      responses:
+        '201':
+          description: Note ajoutée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteResponse'
+
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: Lister ses notifications
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - name: unreadOnly
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Notifications paginées
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPage'
+
+  /notifications/{notificationId}/read:
+    patch:
+      tags: [Notifications]
+      summary: Marquer une notification comme lue
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Notification marquée comme lue
+
+  /notifications/read-all:
+    patch:
+      tags: [Notifications]
+      summary: Marquer toutes les notifications comme lues
+      responses:
+        '204':
+          description: Notifications mises à jour
+
+  /dashboard/citizen:
+    get:
+      tags: [Tableaux de bord]
+      summary: Tableau de bord citoyen
+      responses:
+        '200':
+          description: Indicateurs citoyen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+
+  /dashboard/agent:
+    get:
+      tags: [Tableaux de bord]
+      summary: Tableau de bord agent
+      responses:
+        '200':
+          description: Indicateurs agent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+
+  /dashboard/supervisor:
+    get:
+      tags: [Tableaux de bord]
+      summary: Tableau de bord superviseur
+      responses:
+        '200':
+          description: Indicateurs superviseur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+
+  /dashboard/admin:
+    get:
+      tags: [Tableaux de bord]
+      summary: Tableau de bord administrateur
+      responses:
+        '200':
+          description: Indicateurs administrateur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+
+  /statistics/general:
+    get:
+      tags: [Statistiques]
+      summary: Statistiques générales
+      parameters:
+        - $ref: '#/components/parameters/DateFrom'
+        - $ref: '#/components/parameters/DateTo'
+      responses:
+        '200':
+          description: Statistiques générales
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatisticsResponse'
+
+  /statistics/agents:
+    get:
+      tags: [Statistiques]
+      summary: Statistiques par agent
+      parameters:
+        - $ref: '#/components/parameters/DateFrom'
+        - $ref: '#/components/parameters/DateTo'
+      responses:
+        '200':
+          description: Performances agents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AgentStatisticsResponse'
+
+  /audit:
+    get:
+      tags: [Administration]
+      summary: Consulter le journal d'audit
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: Journal d'audit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditPage'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    Size:
+      name: size
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CategoryId:
+      name: categoryId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ReportId:
+      name: reportId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    DateFrom:
+      name: dateFrom
+      in: query
+      schema:
+        type: string
+        format: date
+    DateTo:
+      name: dateTo
+      in: query
+      schema:
+        type: string
+        format: date
+
+  responses:
+    BadRequest:
+      description: Requête invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Authentification requise ou invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Accès interdit
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Ressource introuvable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    RoleName:
+      type: string
+      enum: [CITOYEN, AGENT, SUPERVISEUR, ADMINISTRATEUR]
+
+    AccountStatus:
+      type: string
+      enum: [ACTIF, SUSPENDU, DESACTIVE]
+
+    ReportStatus:
+      type: string
+      enum: [NOUVEAU, AFFECTE, EN_COURS, RESOLU, CLOTURE, REOUVERT, REJETE, ANNULE]
+
+    InterventionStatus:
+      type: string
+      enum: [AFFECTEE, EN_COURS, RESOLUE, REAFFECTEE, INTERROMPUE]
+
+    Priority:
+      type: string
+      enum: [BASSE, MOYENNE, HAUTE, CRITIQUE]
+
+    NoteType:
+      type: string
+      enum: [INTERNE, PUBLIC]
+
+    RegisterRequest:
+      type: object
+      required: [firstName, lastName, email, phone, password, confirmPassword, termsAccepted]
+      properties:
+        firstName:
+          type: string
+          minLength: 2
+        lastName:
+          type: string
+          minLength: 2
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        password:
+          type: string
+          minLength: 8
+        confirmPassword:
+          type: string
+        termsAccepted:
+          type: boolean
+          const: true
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    RefreshTokenRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        tokenType:
+          type: string
+          example: Bearer
+        expiresIn:
+          type: integer
+        user:
+          $ref: '#/components/schemas/UserResponse'
+
+    UpdateProfileRequest:
+      type: object
+      required: [firstName, lastName, phone]
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phone:
+          type: string
+
+    CreateInternalUserRequest:
+      type: object
+      required: [firstName, lastName, email, phone, role]
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        role:
+          type: string
+          enum: [AGENT, SUPERVISEUR, ADMINISTRATEUR]
+
+    AdminUpdateUserRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phone:
+          type: string
+        role:
+          $ref: '#/components/schemas/RoleName'
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        role:
+          $ref: '#/components/schemas/RoleName'
+        status:
+          $ref: '#/components/schemas/AccountStatus'
+        createdAt:
+          type: string
+          format: date-time
+        lastLoginAt:
+          type: [string, 'null']
+          format: date-time
+
+    UserPage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResponse'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+
+    CategoryRequest:
+      type: object
+      required: [name, defaultPriority, targetDelayHours]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+        defaultPriority:
+          $ref: '#/components/schemas/Priority'
+        targetDelayHours:
+          type: integer
+          minimum: 1
+        active:
+          type: boolean
+          default: true
+
+    CategoryResponse:
+      allOf:
+        - $ref: '#/components/schemas/CategoryRequest'
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            createdAt:
+              type: string
+              format: date-time
+
+    CreateReportMultipart:
+      type: object
+      required: [title, description, categoryId, latitude, longitude, address, photos]
+      properties:
+        title:
+          type: string
+          minLength: 5
+        description:
+          type: string
+          minLength: 30
+          maxLength: 1000
+        categoryId:
+          type: string
+          format: uuid
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        address:
+          type: string
+        district:
+          type: string
+        municipality:
+          type: string
+        photos:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            type: string
+            format: binary
+
+    UpdateReportMultipart:
+      allOf:
+        - $ref: '#/components/schemas/CreateReportMultipart'
+
+    ResolveReportMultipart:
+      type: object
+      required: [resolutionComment, proofs]
+      properties:
+        resolutionComment:
+          type: string
+          minLength: 10
+        proofs:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            type: string
+            format: binary
+
+    AssignReportRequest:
+      type: object
+      required: [agentId]
+      properties:
+        agentId:
+          type: string
+          format: uuid
+        instruction:
+          type: string
+
+    ReassignReportRequest:
+      type: object
+      required: [newAgentId, reason]
+      properties:
+        newAgentId:
+          type: string
+          format: uuid
+        reason:
+          type: string
+
+    ReportResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        reference:
+          type: string
+          example: SV-2026-000001
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/ReportStatus'
+        priority:
+          $ref: '#/components/schemas/Priority'
+        category:
+          $ref: '#/components/schemas/CategoryResponse'
+        latitude:
+          type: number
+        longitude:
+          type: number
+        address:
+          type: string
+        district:
+          type: string
+        municipality:
+          type: string
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhotoResponse'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ReportDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/ReportResponse'
+        - type: object
+          properties:
+            citizen:
+              $ref: '#/components/schemas/UserResponse'
+            activeIntervention:
+              anyOf:
+                - $ref: '#/components/schemas/InterventionResponse'
+                - type: 'null'
+            history:
+              type: array
+              items:
+                $ref: '#/components/schemas/HistoryResponse'
+
+    ReportPage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportResponse'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+
+    PhotoResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+        description:
+          type: string
+        order:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    InterventionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        reportId:
+          type: string
+          format: uuid
+        agent:
+          $ref: '#/components/schemas/UserResponse'
+        status:
+          $ref: '#/components/schemas/InterventionStatus'
+        assignedAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: [string, 'null']
+          format: date-time
+        resolvedAt:
+          type: [string, 'null']
+          format: date-time
+        instruction:
+          type: string
+        resolutionComment:
+          type: string
+        proofs:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhotoResponse'
+
+    CreateNoteRequest:
+      type: object
+      required: [content, type]
+      properties:
+        content:
+          type: string
+        type:
+          $ref: '#/components/schemas/NoteType'
+
+    NoteResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        content:
+          type: string
+        type:
+          $ref: '#/components/schemas/NoteType'
+        author:
+          $ref: '#/components/schemas/UserResponse'
+        createdAt:
+          type: string
+          format: date-time
+
+    HistoryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        previousStatus:
+          anyOf:
+            - $ref: '#/components/schemas/ReportStatus'
+            - type: 'null'
+        newStatus:
+          $ref: '#/components/schemas/ReportStatus'
+        comment:
+          type: string
+        actor:
+          $ref: '#/components/schemas/UserResponse'
+        changedAt:
+          type: string
+          format: date-time
+
+    NotificationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        message:
+          type: string
+        read:
+          type: boolean
+        link:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    NotificationPage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationResponse'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+
+    DashboardResponse:
+      type: object
+      additionalProperties:
+        type: number
+
+    StatisticsResponse:
+      type: object
+      properties:
+        totalReports:
+          type: integer
+        byStatus:
+          type: object
+          additionalProperties:
+            type: integer
+        byCategory:
+          type: object
+          additionalProperties:
+            type: integer
+        averageProcessingHours:
+          type: number
+        targetComplianceRate:
+          type: number
+
+    AgentStatisticsResponse:
+      type: object
+      properties:
+        agentId:
+          type: string
+          format: uuid
+        agentName:
+          type: string
+        assignedCount:
+          type: integer
+        resolvedCount:
+          type: integer
+        reassignedCount:
+          type: integer
+        averageProcessingHours:
+          type: number
+
+    AuditResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        action:
+          type: string
+        entityType:
+          type: string
+        entityId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        performedAt:
+          type: string
+          format: date-time
+        details:
+          type: string
+        ipAddress:
+          type: string
+
+    AuditPage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditResponse'
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+        validationErrors:
+          type: object
+          additionalProperties:
+            type: string
