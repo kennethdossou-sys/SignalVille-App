@@ -23,3 +23,5 @@ application-local.yml
 # ===== Système =====
 .DS_Store
 Thumbs.db
+# ===== Uploads locaux =====
+signalville-backend/uploads/
