@@ -81,6 +81,10 @@ logout(): Observable<void> {
   );
 }
 
+forceLocalLogout(): void {
+  this.clearStorage();
+}
+
 
 // ============================================
 // Méthodes privées — stockage localStorage
