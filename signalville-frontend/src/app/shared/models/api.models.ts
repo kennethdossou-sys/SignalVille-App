@@ -1,33 +1,40 @@
-/**
- * Types miroir des schemas du contrat docs/api/signalville-openapi.yaml.
- * Toute divergence ici est un bug : le contrat fait foi.
- */
+export type Role = 'CITOYEN' | 'AGENT' | 'SUPERVISEUR' | 'ADMINISTRATEUR';
 
-export type RoleName = 'CITOYEN' | 'AGENT' | 'SUPERVISEUR' | 'ADMINISTRATEUR';
 export type AccountStatus = 'ACTIF' | 'SUSPENDU' | 'DESACTIVE';
+
+export type ReportStatus = 'NOUVEAU' | 'AFFECTE' | 'EN_COURS' | 'RESOLU' | 'REOUVERT' | 'CLOTURE' | 'REJETE' | 'ANNULE';
+
 export type Priority = 'BASSE' | 'MOYENNE' | 'HAUTE' | 'CRITIQUE';
 
-export type ReportStatus =
-  | 'NOUVEAU'
-  | 'AFFECTE'
-  | 'EN_COURS'
-  | 'RESOLU'
-  | 'CLOTURE'
-  | 'REOUVERT'
-  | 'REJETE'
-  | 'ANNULE';
+export type NoteType = 'INTERNE' | 'PUBLIC';
 
-export interface UserResponse {
-  id: string;
-  firstName: string;
-  lastName: string;
+
+
+//Interfaces
+
+
+export interface LoginRequest {
   email: string;
-  phone: string;
-  role: RoleName;
-  status: AccountStatus;
-  createdAt: string;
-  lastLoginAt: string | null;
+  password: string;
 }
+
+export interface RefreshTokenRequest {
+    refreshToken: string;
+}
+
+export interface RegisterRequest{
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    password: string;
+    confirmPassword: string;
+    termsAccepted: boolean;
+}
+
+// ============================================
+// AUTH
+// ============================================
 
 export interface AuthResponse {
   accessToken: string;
@@ -37,48 +44,76 @@ export interface AuthResponse {
   user: UserResponse;
 }
 
-export interface RegisterRequest {
+// ============================================
+// USERS
+// ============================================
+
+export interface UserResponse {
+  id: string;
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
-  password: string;
-  confirmPassword: string;
-  termsAccepted: boolean;
+  role: Role;
+  status: AccountStatus;
+  createdAt: string;
+  lastLoginAt: string | null;
 }
 
-export interface LoginRequest {
-  email: string;
-  password: string;
+export interface UpdateProfileRequest {
+  firstName: string;
+  lastName: string;
+  phone: string;
 }
+
+export interface CreateInternalUserRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  role: 'AGENT' | 'SUPERVISEUR' | 'ADMINISTRATEUR';
+}
+
+export interface AdminUpdateUserRequest {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  role?: Role;
+}
+
+export interface UserPage {
+  content: UserResponse[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+// ============================================
+// CATEGORIES
+// ============================================
 
 export interface CategoryResponse {
   id: string;
   name: string;
-  description?: string;
-  icon?: string;
+  description: string;
+  icon: string;
   defaultPriority: Priority;
   targetDelayHours: number;
   active: boolean;
-  createdAt: string;
 }
 
-export interface PhotoResponse {
-  id: string;
-  url: string;
-  description?: string;
-  order: number;
-  createdAt: string;
+export interface CategoryRequest {
+  name: string;
+  description: string;
+  icon: string;
+  defaultPriority: Priority;
+  targetDelayHours: number;
 }
 
-export interface HistoryResponse {
-  id: string;
-  previousStatus: ReportStatus | null;
-  newStatus: ReportStatus;
-  comment?: string;
-  actor?: UserResponse;
-  changedAt: string;
-}
+// ============================================
+// REPORTS
+// ============================================
 
 export interface ReportResponse {
   id: string;
@@ -91,8 +126,8 @@ export interface ReportResponse {
   latitude: number;
   longitude: number;
   address: string;
-  district?: string;
-  municipality?: string;
+  district: string;
+  municipality: string;
   photos: PhotoResponse[];
   createdAt: string;
   updatedAt: string;
@@ -100,17 +135,92 @@ export interface ReportResponse {
 
 export interface ReportDetailResponse extends ReportResponse {
   citizen: UserResponse;
-  activeIntervention: unknown | null;
+  activeIntervention: InterventionResponse | null;
   history: HistoryResponse[];
 }
 
-export interface PageResponse<T> {
-  content: T[];
+export interface ReportPage {
+  content: ReportResponse[];
   page: number;
   size: number;
   totalElements: number;
   totalPages: number;
 }
+
+export interface CancelReportRequest {
+  reason: string;
+}
+
+// ============================================
+// PHOTOS
+// ============================================
+
+export interface PhotoResponse {
+  id: string;
+  url: string;
+  description: string;
+  order: number;
+  createdAt: string;
+}
+
+// ============================================
+// INTERVENTIONS (Module 2 - prêt mais non utilisé en S2)
+// ============================================
+
+export type InterventionStatus = 'AFFECTEE' | 'EN_COURS' | 'RESOLUE' | 'REAFFECTEE' | 'INTERROMPUE';
+
+export interface InterventionResponse {
+  id: string;
+  reportId: string;
+  agent: UserResponse;
+  status: InterventionStatus;
+  assignedAt: string;
+  startedAt: string | null;
+  resolvedAt: string | null;
+  instruction: string;
+  resolutionComment: string;
+  proofs: PhotoResponse[];
+}
+
+export interface AssignReportRequest {
+  agentId: string;
+  instruction?: string;
+}
+
+export interface ReassignReportRequest {
+  newAgentId: string;
+  reason: string;
+}
+
+// ============================================
+// HISTORY & NOTES
+// ============================================
+
+export interface HistoryResponse {
+  id: string;
+  previousStatus: ReportStatus | null;
+  newStatus: ReportStatus;
+  comment: string;
+  actor: UserResponse;
+  changedAt: string;
+}
+
+export interface NoteResponse {
+  id: string;
+  content: string;
+  type: NoteType;
+  author: UserResponse;
+  createdAt: string;
+}
+
+export interface CreateNoteRequest {
+  content: string;
+  type: NoteType;
+}
+
+// ============================================
+// COMMON
+// ============================================
 
 export interface ErrorResponse {
   timestamp: string;
