@@ -1,0 +1,55 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="brand">
+      <h1>SignalVille</h1>
+      <p>Portail Citoyen &amp; Institutionnel</p>
+    </div>
+
+    <h2>Connexion</h2>
+    <p class="subtitle">Accédez à votre espace pour gérer vos signalements.</p>
+
+    @if (errorMessage()) {
+      <div class="alert alert-error">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="field">
+        <label for="email">Adresse e-mail</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="jean.dupont@exemple.sn"
+        />
+        @if (form.get('email')?.invalid && form.get('email')?.touched) {
+          <span class="field-error">Adresse e-mail invalide.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <input id="password" type="password" formControlName="password" />
+        @if (form.get('password')?.invalid && form.get('password')?.touched) {
+          <span class="field-error">Le mot de passe est requis.</span>
+        }
+      </div>
+
+      <button type="submit" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          Connexion en cours...
+        } @else {
+          Se connecter
+        }
+      </button>
+    </form>
+
+    <div class="divider">ou</div>
+
+    <p class="register-link">
+      Nouveau sur SignalVille ?
+      <a routerLink="/register">Créer un compte</a>
+    </p>
+  </div>
+</div>
