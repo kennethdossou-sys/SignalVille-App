@@ -11,11 +11,12 @@
   background: #ffffff;
   border-bottom: 1px solid #e5e7eb;
 
-  .brand {
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: #1e3a8a;
-  }
+.brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #1e3a8a;
+  text-decoration: none;   // ← ajouté : évite le soulignement par défaut des liens
+}
 
   .user-info {
     display: flex;

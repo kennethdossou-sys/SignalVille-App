@@ -1,0 +1,146 @@
+.report-list-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+
+  h1 { color: #111827; margin: 0 0 0.3rem; font-size: 1.4rem; }
+  .subtitle { color: #6b7280; margin: 0; font-size: 0.9rem; }
+}
+
+.cta-btn {
+  background: #f97316;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.65rem 1.1rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover { background: #ea580c; }
+}
+
+.filters {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.status-filter {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: #ffffff;
+}
+
+.loading-state, .error-state {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.error-state { color: #dc2626; }
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background: #ffffff;
+  border: 1px dashed #d1d5db;
+  border-radius: 10px;
+  color: #6b7280;
+}
+
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.report-card {
+  display: block;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1.1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.15s, border-color 0.15s;
+
+  &:hover { box-shadow: 0 2px 10px rgba(30, 58, 138, 0.08); border-color: #bfdbfe; }
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+
+  .report-reference { font-size: 0.72rem; color: #9ca3af; font-family: monospace; }
+  .report-date { font-size: 0.72rem; color: #9ca3af; }
+}
+
+.report-title { font-size: 0.98rem; color: #111827; margin: 0 0 0.3rem; }
+.report-category { font-size: 0.82rem; color: #6b7280; margin: 0 0 0.75rem; }
+
+.card-badges { display: flex; gap: 0.5rem; }
+
+.status-badge, .priority-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+// Palette de statuts identique partout dans l'app (Dashboard, Liste, Détail).
+.status-NOUVEAU { background: #dbeafe; color: #1e40af; }
+.status-AFFECTE { background: #ede9fe; color: #6d28d9; }
+.status-EN_COURS { background: #ffedd5; color: #c2410c; }
+.status-RESOLU { background: #dcfce7; color: #15803d; }
+.status-CLOTURE { background: #f3f4f6; color: #374151; }
+.status-REOUVERT { background: #fef9c3; color: #a16207; }
+.status-REJETE { background: #fee2e2; color: #b91c1c; }
+.status-ANNULE { background: #f3f4f6; color: #9ca3af; }
+
+.priority-BASSE { background: #f3f4f6; color: #6b7280; }
+.priority-MOYENNE { background: #dbeafe; color: #1e40af; }
+.priority-HAUTE { background: #ffedd5; color: #c2410c; }
+.priority-CRITIQUE { background: #fee2e2; color: #b91c1c; }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+
+  button {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+
+    &:disabled { opacity: 0.4; cursor: not-allowed; }
+    &:hover:not(:disabled) { background: #f3f4f6; }
+  }
+
+  .page-info { font-size: 0.82rem; color: #6b7280; }
+}

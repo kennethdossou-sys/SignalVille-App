@@ -1,6 +1,6 @@
 <div class="dashboard-page">
   <header class="top-nav">
-    <div class="brand">SignalVille</div>
+    <a routerLink="/dashboard" class="brand">SignalVille</a>
     <div class="user-info">
       @if (currentUser(); as user) {
         <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>

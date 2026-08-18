@@ -38,7 +38,7 @@ export class Dashboard implements OnInit {
   readonly recentReports = computed(() => this.reports().slice(0, 5));
 
   ngOnInit(): void {
-    this.reportsService.list(0, 50).subscribe({
+  this.reportsService.list({ page: 0, size: 50 }).subscribe({
       next: (page) => {
         this.reports.set(page.content);
         this.isLoading.set(false);

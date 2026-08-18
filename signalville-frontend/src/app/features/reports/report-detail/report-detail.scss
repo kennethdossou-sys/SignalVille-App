@@ -1,0 +1,191 @@
+.report-detail-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.loading-state, .error-state {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.error-state { color: #dc2626; }
+
+.detail-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 12px rgba(30, 58, 138, 0.06);
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+
+  .report-reference {
+    font-size: 0.78rem;
+    color: #9ca3af;
+    font-family: monospace;
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+
+  h1 { font-size: 1.3rem; color: #111827; margin: 0; }
+}
+
+.badges { display: flex; gap: 0.5rem; flex-shrink: 0; }
+
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin: 1rem 0;
+
+  &.alert-error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+}
+
+.meta-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0.75rem 0 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.section {
+  margin-bottom: 1.75rem;
+
+  h2 { font-size: 1rem; color: #111827; margin: 0 0 0.6rem; }
+  p { color: #374151; font-size: 0.92rem; line-height: 1.5; margin: 0; }
+}
+
+.address-text { margin-bottom: 0.75rem !important; }
+
+.map-container {
+  height: 240px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  overflow: hidden;
+}
+
+.photo-gallery { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+.gallery-photo {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.history-item {
+  padding-left: 0.9rem;
+  border-left: 2px solid #e5e7eb;
+}
+
+.history-transition {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.3rem;
+
+  .arrow { color: #9ca3af; font-size: 0.8rem; }
+}
+
+.history-meta { font-size: 0.78rem; color: #9ca3af; margin: 0 0 0.2rem; }
+.history-comment { font-size: 0.85rem; color: #374151; margin: 0; }
+
+.status-badge, .priority-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+
+  &.small { font-size: 0.66rem; padding: 0.15rem 0.45rem; }
+}
+
+.status-NOUVEAU { background: #dbeafe; color: #1e40af; }
+.status-AFFECTE { background: #ede9fe; color: #6d28d9; }
+.status-EN_COURS { background: #ffedd5; color: #c2410c; }
+.status-RESOLU { background: #dcfce7; color: #15803d; }
+.status-CLOTURE { background: #f3f4f6; color: #374151; }
+.status-REOUVERT { background: #fef9c3; color: #a16207; }
+.status-REJETE { background: #fee2e2; color: #b91c1c; }
+.status-ANNULE { background: #f3f4f6; color: #9ca3af; }
+
+.priority-BASSE { background: #f3f4f6; color: #6b7280; }
+.priority-MOYENNE { background: #dbeafe; color: #1e40af; }
+.priority-HAUTE { background: #ffedd5; color: #c2410c; }
+.priority-CRITIQUE { background: #fee2e2; color: #b91c1c; }
+
+.actions { padding-top: 1rem; border-top: 1px solid #f3f4f6; }
+
+.cancel-btn {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  font-size: 0.88rem;
+  cursor: pointer;
+
+  &:hover:not(:disabled) { background: #fee2e2; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.secondary-btn {
+  background: #ffffff;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  font-size: 0.88rem;
+  cursor: pointer;
+
+  &:hover { background: #f3f4f6; }
+}
+
+.cancel-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label { font-size: 0.85rem; font-weight: 500; color: #374151; }
+
+  textarea {
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    resize: vertical;
+  }
+}
+
+.cancel-actions { display: flex; gap: 0.6rem; }
+
+.back-link {
+  display: inline-block;
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: #1e3a8a;
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+}

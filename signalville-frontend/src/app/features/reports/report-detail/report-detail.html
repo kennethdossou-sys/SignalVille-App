@@ -1,0 +1,109 @@
+<div class="report-detail-page">
+  @if (isLoading()) {
+    <div class="loading-state">Chargement du signalement...</div>
+  } @else if (errorMessage() && !report()) {
+    <div class="error-state">{{ errorMessage() }}</div>
+  } @else if (report(); as r) {
+    <div class="detail-card">
+      <div class="detail-header">
+        <div>
+          <span class="report-reference">{{ r.reference }}</span>
+          <h1>{{ r.title }}</h1>
+        </div>
+        <div class="badges">
+          <span class="status-badge" [class]="'status-' + r.status">{{ r.status }}</span>
+          <span class="priority-badge" [class]="'priority-' + r.priority">{{ r.priority }}</span>
+        </div>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="alert alert-error">{{ errorMessage() }}</div>
+      }
+
+      <div class="meta-row">
+        <span>{{ r.category.name }}</span>
+        <span>Créé le {{ r.createdAt | date: 'dd MMM yyyy à HH:mm' }}</span>
+        <span>Mis à jour le {{ r.updatedAt | date: 'dd MMM yyyy à HH:mm' }}</span>
+      </div>
+
+      <section class="section">
+        <h2>Description</h2>
+        <p>{{ r.description }}</p>
+      </section>
+
+      <section class="section">
+        <h2>Localisation</h2>
+        <p class="address-text">
+          {{ r.address }}
+          @if (r.district) { <span> — {{ r.district }}</span> }
+          @if (r.municipality) { <span> — {{ r.municipality }}</span> }
+        </p>
+        <div #mapContainer class="map-container"></div>
+      </section>
+
+      @if (displayPhotos().length > 0) {
+        <section class="section">
+          <h2>Photos</h2>
+          <div class="photo-gallery">
+            @for (photo of displayPhotos(); track photo.id) {
+              <img [src]="photo.objectUrl" alt="Photo du signalement" class="gallery-photo" />
+            }
+          </div>
+        </section>
+      }
+
+      <section class="section">
+        <h2>Historique</h2>
+        <ul class="history-list">
+          @for (entry of r.history; track entry.id) {
+            <li class="history-item">
+              <div class="history-transition">
+                @if (entry.previousStatus) {
+                  <span class="status-badge small" [class]="'status-' + entry.previousStatus">{{ entry.previousStatus }}</span>
+                  <span class="arrow">→</span>
+                }
+                <span class="status-badge small" [class]="'status-' + entry.newStatus">{{ entry.newStatus }}</span>
+              </div>
+              <p class="history-meta">
+                {{ entry.actor.firstName }} {{ entry.actor.lastName }} — {{ entry.changedAt | date: 'dd MMM yyyy à HH:mm' }}
+              </p>
+              @if (entry.comment) {
+                <p class="history-comment">{{ entry.comment }}</p>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+
+      @if (r.status === 'NOUVEAU') {
+        <section class="section actions">
+          @if (!showCancelForm()) {
+            <button class="cancel-btn" (click)="openCancelForm()">Annuler ce signalement</button>
+          } @else {
+            <div class="cancel-form">
+              <label for="cancelReason">Motif de l'annulation</label>
+              <textarea
+                id="cancelReason"
+                rows="2"
+                [(ngModel)]="cancelReason"
+                placeholder="Expliquez pourquoi vous annulez ce signalement..."
+              ></textarea>
+              <div class="cancel-actions">
+                <button class="secondary-btn" (click)="closeCancelForm()">Retour</button>
+                <button
+                  class="cancel-btn"
+                  [disabled]="isCancelling() || !cancelReason.trim()"
+                  (click)="confirmCancel()"
+                >
+                  @if (isCancelling()) { Annulation... } @else { Confirmer l'annulation }
+                </button>
+              </div>
+            </div>
+          }
+        </section>
+      }
+
+      <a routerLink="/reports" class="back-link">&larr; Retour à mes signalements</a>
+    </div>
+  }
+</div>
