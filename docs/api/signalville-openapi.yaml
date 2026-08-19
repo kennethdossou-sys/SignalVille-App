@@ -630,6 +630,29 @@ paths:
                 items:
                   $ref: '#/components/schemas/HistoryResponse'
 
+  /photos/{photoId}:
+    get:
+      tags: [Signalements]
+      summary: Télécharger le binaire d'une photo de signalement
+      description: >
+        Accès authentifié requis. Le CITOYEN ne peut télécharger que les photos
+        de ses propres signalements ; AGENT, SUPERVISEUR et ADMINISTRATEUR
+        n'ont pas cette restriction.
+      parameters:
+        - $ref: '#/components/parameters/PhotoId'
+      responses:
+        '200':
+          description: Fichier binaire de la photo (image)
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /reports/{reportId}/notes:
     get:
       tags: [Interventions]
@@ -648,6 +671,7 @@ paths:
     post:
       tags: [Interventions]
       summary: Ajouter une note
+      description: Réservé aux rôles AGENT et SUPERVISEUR. Le citoyen n'a pas accès à cet endpoint.
       parameters:
         - $ref: '#/components/parameters/ReportId'
       requestBody:
@@ -663,6 +687,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NoteResponse'
+
+  /interventions/{interventionId}/proofs:
+    get:
+      tags: [Interventions]
+      summary: Lister les preuves de resolution d'une intervention
+      parameters:
+        - $ref: '#/components/parameters/InterventionId'
+      responses:
+        '200':
+          description: Liste des preuves de l'intervention
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PhotoResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /interventions/{interventionId}/proofs/{proofId}:
+    get:
+      tags: [Interventions]
+      summary: Telecharger le binaire d'une preuve de resolution
+      parameters:
+        - $ref: '#/components/parameters/InterventionId'
+        - name: proofId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Fichier binaire de la preuve (image)
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /notifications:
     get:
@@ -841,6 +906,20 @@ components:
         format: uuid
     ReportId:
       name: reportId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    InterventionId:
+      name: interventionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    PhotoId:
+      name: photoId
       in: path
       required: true
       schema:
