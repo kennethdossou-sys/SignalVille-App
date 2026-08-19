@@ -59,6 +59,7 @@ public class ReportService {
     private final UserRepository userRepository;
     private final ReportReferenceGenerator referenceGenerator;
     private final PhotoStorageService photoStorage;
+    private final NotificationService notificationService;
 
     @Transactional
     public ReportResponse create(AppUserPrincipal principal, ReportFormRequest form, List<MultipartFile> photos) {
@@ -170,6 +171,40 @@ public class ReportService {
                 .actor(userRepository.getReferenceById(principal.id()))
                 .build());
 
+        return ReportMapper.toResponse(report);
+    }
+        /**
+     * Le superviseur rejette un signalement avant toute affectation (doublon,
+     * hors perimetre, canular...). Possible uniquement depuis NOUVEAU - un
+     * signalement deja affecte doit passer par le cycle normal, pas par un rejet.
+     */
+    @Transactional
+    public ReportResponse reject(AppUserPrincipal principal, UUID reportId, String reason) {
+        if (reason == null || reason.isBlank()) {
+            throw new BusinessRuleException("Un motif de rejet est obligatoire");
+        }
+        Report report = reportRepository.findDetailById(reportId)
+                .orElseThrow(() -> ResourceNotFoundException.of("Signalement", reportId));
+        requireStatus(report, ReportStatus.NOUVEAU, "Seul un signalement au statut NOUVEAU peut etre rejete");
+
+        ReportStatus previous = report.getStatus();
+        report.setStatus(ReportStatus.REJETE);
+        reportRepository.save(report);
+
+        User supervisor = userRepository.getReferenceById(principal.id());
+        statusHistoryRepository.save(StatusHistory.builder()
+                .report(report)
+                .previousStatus(previous)
+                .newStatus(ReportStatus.REJETE)
+                .comment(reason)
+                .actor(supervisor)
+                .build());
+
+        notificationService.notify(report.getCitizen(), "Signalement rejete",
+                "Votre signalement " + report.getReference() + " a ete rejete : " + reason,
+                "/reports/" + report.getId());
+
+        log.info("Signalement {} rejete par {}", report.getReference(), principal.email());
         return ReportMapper.toResponse(report);
     }
 
