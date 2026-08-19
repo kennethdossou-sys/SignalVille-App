@@ -49,3 +49,9 @@ signalville:
 logging:
   level:
     africa.epf.signalville_backend: DEBUG
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs

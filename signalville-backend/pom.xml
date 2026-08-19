@@ -90,6 +90,18 @@
 		</dependency>
 
 		<!--
+		  Swagger UI + generation automatique du document OpenAPI a partir des
+		  annotations Spring MVC (@RestController, @RequestMapping, etc.).
+		  Version alignee sur Spring Boot 4 / Jakarta EE 11.
+		  Expose /v3/api-docs (JSON du contrat genere) et /swagger-ui.html (interface).
+		-->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.8.5</version>
+		</dependency>
+
+		<!--
 		  JWT : JJWT 0.12.x. On utilise le serialiseur Gson plutot que Jackson :
 		  Spring Boot 4 embarque Jackson 3 (tools.jackson) alors que jjwt-jackson
 		  cible Jackson 2 (com.fasterxml.jackson). Gson est autonome et evite
