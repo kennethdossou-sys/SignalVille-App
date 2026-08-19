@@ -206,6 +206,27 @@ public class InterventionService {
         return report;
     }
 
+        /**
+     * Intervention active d'un signalement, pour un affichage frontend qui n'a
+     * besoin que de la donnee courante (pas de l'historique complet des
+     * interventions). Complement cible a l'option B (activeIntervention reste
+     * null dans ReportDetailResponse) : plutot que d'enrichir ReportService
+     * avec une dependance vers le Module 2, Angular appelle explicitement cet
+     * endpoint quand il a besoin de la donnee.
+     *
+     * Regle de visibilite identique a celle du signalement lui-meme : un
+     * CITOYEN ne voit l'intervention que si le signalement lui appartient.
+     */
+    @Transactional(readOnly = true)
+    public Intervention getActiveInterventionForReport(AppUserPrincipal principal, UUID reportId) {
+        Report report = requireReport(reportId);
+        if (principal.role() == Role.CITOYEN && !report.isOwnedBy(principal.id())) {
+            throw new AccessDeniedException("Ce signalement n'appartient pas a l'utilisateur courant");
+        }
+        return interventionRepository.findActiveByReportId(reportId)
+                .orElseThrow(() -> ResourceNotFoundException.of("Intervention active pour ce signalement", reportId));
+    }
+
     /**
      * Le superviseur rouvre un signalement cloture. L'ancienne intervention reste
      * en l'etat (trace historique) ; une nouvelle affectation (assign) est

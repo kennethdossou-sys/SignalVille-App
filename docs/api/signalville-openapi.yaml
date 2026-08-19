@@ -444,6 +444,30 @@ paths:
         '409':
           description: Modification impossible selon le statut courant
 
+  /reports/{reportId}/intervention:
+    get:
+      tags: [Interventions]
+      summary: Consulter l'intervention active d'un signalement
+      description: >
+        Retourne l'intervention actuellement active (AFFECTEE ou EN_COURS) du
+        signalement, si elle existe. Memes regles de visibilite que la
+        consultation du signalement lui-meme.
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      responses:
+        '200':
+          description: Intervention active trouvee
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterventionResponse'
+        '404':
+          description: Signalement introuvable, ou aucune intervention active pour ce signalement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /reports/{reportId}/cancel:
     post:
       tags: [Signalements]

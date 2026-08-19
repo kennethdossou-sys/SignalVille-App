@@ -95,6 +95,19 @@ public class ReportController {
         return ResponseEntity.ok(reportService.getDetail(principal, reportId));
     }
 
+        /**
+     * GET /reports/{id}/intervention : intervention active du signalement,
+     * si elle existe. 404 si le signalement lui-meme n'existe pas, ou si
+     * aucune intervention active n'y est rattachee.
+     */
+    @GetMapping("/{reportId}/intervention")
+    public ResponseEntity<InterventionResponse> activeIntervention(
+            @AuthenticationPrincipal AppUserPrincipal principal,
+            @PathVariable UUID reportId) {
+        Intervention intervention = interventionService.getActiveInterventionForReport(principal, reportId);
+        return ResponseEntity.ok(InterventionMapper.toResponse(intervention));
+    }
+
     /** PUT /reports/{id} : 409 si le signalement n'est plus au statut NOUVEAU. */
     @PutMapping(path = "/{reportId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('CITOYEN')")
