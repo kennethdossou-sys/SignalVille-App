@@ -12,6 +12,7 @@ servers:
 tags:
   - name: Authentification
   - name: Utilisateurs
+  - name: Agents
   - name: Catégories
   - name: Signalements
   - name: Interventions
@@ -285,6 +286,26 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserResponse'
 
+  /agents/available:
+    get:
+      tags: [Agents]
+      summary: Lister les agents actifs disponibles pour affectation
+      description: >
+        Réservé au superviseur. Vue restreinte (pas de données de gestion de
+        compte) incluant la charge courante de chaque agent, pour permettre
+        une affectation équilibrée plutôt qu'à l'aveugle.
+      responses:
+        '200':
+          description: Liste des agents actifs avec leur charge courante
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AvailableAgentResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   /categories:
     get:
       tags: [Catégories]
@@ -450,13 +471,13 @@ paths:
       summary: Consulter l'intervention active d'un signalement
       description: >
         Retourne l'intervention actuellement active (AFFECTEE ou EN_COURS) du
-        signalement, si elle existe. Memes regles de visibilite que la
-        consultation du signalement lui-meme.
+        signalement, si elle existe. Mêmes règles de visibilité que la
+        consultation du signalement lui-même.
       parameters:
         - $ref: '#/components/parameters/ReportId'
       responses:
         '200':
-          description: Intervention active trouvee
+          description: Intervention active trouvée
           content:
             application/json:
               schema:
@@ -653,29 +674,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/HistoryResponse'
-
-  /photos/{photoId}:
-    get:
-      tags: [Signalements]
-      summary: Télécharger le binaire d'une photo de signalement
-      description: >
-        Accès authentifié requis. Le CITOYEN ne peut télécharger que les photos
-        de ses propres signalements ; AGENT, SUPERVISEUR et ADMINISTRATEUR
-        n'ont pas cette restriction.
-      parameters:
-        - $ref: '#/components/parameters/PhotoId'
-      responses:
-        '200':
-          description: Fichier binaire de la photo (image)
-          content:
-            image/*:
-              schema:
-                type: string
-                format: binary
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
 
   /reports/{reportId}/notes:
     get:
@@ -942,13 +940,6 @@ components:
       schema:
         type: string
         format: uuid
-    PhotoId:
-      name: photoId
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
     DateFrom:
       name: dateFrom
       in: query
@@ -1149,6 +1140,24 @@ components:
         totalElements:
           type: integer
         totalPages:
+          type: integer
+
+    AvailableAgentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        status:
+          $ref: '#/components/schemas/AccountStatus'
+        activeInterventionsCount:
           type: integer
 
     CategoryRequest:
