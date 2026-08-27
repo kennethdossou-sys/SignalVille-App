@@ -219,6 +219,52 @@ export interface CreateNoteRequest {
 }
 
 // ============================================
+// AGENTS (Module 2)
+// ============================================
+
+export interface AvailableAgentResponse {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  status: AccountStatus;
+  activeInterventionsCount: number;
+}
+
+// ============================================
+// MODULE 2 — requêtes complémentaires
+// ============================================
+
+export interface RejectReportRequest {
+  reason: string;
+}
+
+export interface ReopenReportRequest {
+  reason: string;
+}
+
+export interface CloseReportRequest {
+  publicComment?: string;
+}
+
+export interface NotificationResponse {
+  id: string;
+  title: string;
+  message: string;
+  read: boolean;
+  link: string;
+  createdAt: string;
+}
+
+export interface NotificationPage {
+  content: NotificationResponse[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+// ============================================
 // COMMON
 // ============================================
 
