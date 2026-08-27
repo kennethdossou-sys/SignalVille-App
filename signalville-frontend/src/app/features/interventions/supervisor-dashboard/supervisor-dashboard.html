@@ -1,0 +1,119 @@
+<div class="supervisor-dashboard">
+  <h1>Espace superviseur</h1>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <p>Chargement…</p>
+  } @else {
+
+    <!-- ============ NOUVEAUX SIGNALEMENTS A AFFECTER ============ -->
+    <section class="panel">
+      <h2>Nouveaux signalements à affecter ({{ newReports().length }})</h2>
+
+      @if (!hasNewReports()) {
+        <p class="empty">Aucun signalement en attente d'affectation.</p>
+      }
+
+      @for (report of newReports(); track report.id) {
+        <div class="report-card">
+          <div class="report-card__header">
+            <span class="reference">{{ report.reference }}</span>
+            <span class="priority priority--{{ report.priority.toLowerCase() }}">{{ report.priority }}</span>
+          </div>
+          <h3>{{ report.title }}</h3>
+          <p class="category">{{ report.category.name }} — {{ report.address }}</p>
+          <a [routerLink]="['/reports', report.id]">Voir le détail</a>
+
+          @if (assigningReportId() === report.id) {
+            <div class="assign-form">
+              <label>
+                Agent
+                <select [(ngModel)]="selectedAgentId" name="agent-{{ report.id }}">
+                  <option value="" disabled selected>Choisir un agent</option>
+                  @for (agent of availableAgents(); track agent.id) {
+                    <option [value]="agent.id">
+                      {{ agent.firstName }} {{ agent.lastName }} — {{ agent.activeInterventionsCount }} intervention(s) active(s)
+                    </option>
+                  }
+                </select>
+              </label>
+              <label>
+                Instruction (optionnel)
+                <textarea [(ngModel)]="assignInstruction" name="instruction-{{ report.id }}" rows="2"></textarea>
+              </label>
+              <div class="actions">
+                <button type="button" (click)="confirmAssign(report.id)" [disabled]="actionInProgress() === report.id">
+                  Confirmer l'affectation
+                </button>
+                <button type="button" class="secondary" (click)="cancelAssignForm()">Annuler</button>
+              </div>
+            </div>
+          } @else if (rejectingReportId() === report.id) {
+            <div class="reject-form">
+              <label>
+                Motif de rejet
+                <textarea [(ngModel)]="rejectReason" name="reject-{{ report.id }}" rows="2"></textarea>
+              </label>
+              <div class="actions">
+                <button type="button" class="danger" (click)="confirmReject(report.id)" [disabled]="actionInProgress() === report.id">
+                  Confirmer le rejet
+                </button>
+                <button type="button" class="secondary" (click)="cancelRejectForm()">Annuler</button>
+              </div>
+            </div>
+          } @else {
+            <div class="actions">
+              <button type="button" (click)="openAssignForm(report.id)">Affecter à un agent</button>
+              <button type="button" class="danger" (click)="openRejectForm(report.id)">Rejeter</button>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- ============ RESOLUTIONS A VERIFIER ============ -->
+    <section class="panel">
+      <h2>Résolutions à vérifier ({{ resolvedReports().length }})</h2>
+
+      @if (!hasResolvedReports()) {
+        <p class="empty">Aucune résolution en attente de vérification.</p>
+      }
+
+      @for (report of resolvedReports(); track report.id) {
+        <div class="report-card">
+          <div class="report-card__header">
+            <span class="reference">{{ report.reference }}</span>
+          </div>
+          <h3>{{ report.title }}</h3>
+          <p class="category">{{ report.category.name }} — {{ report.address }}</p>
+          <a [routerLink]="['/reports', report.id]">Voir le détail, le commentaire et les preuves</a>
+
+          @if (reopeningReportId() === report.id) {
+            <div class="reopen-form">
+              <label>
+                Motif de réouverture
+                <textarea [(ngModel)]="reopenReason" name="reopen-{{ report.id }}" rows="2"></textarea>
+              </label>
+              <div class="actions">
+                <button type="button" class="danger" (click)="confirmReopen(report.id)" [disabled]="actionInProgress() === report.id">
+                  Confirmer la réouverture
+                </button>
+                <button type="button" class="secondary" (click)="cancelReopenForm()">Annuler</button>
+              </div>
+            </div>
+          } @else {
+            <div class="actions">
+              <button type="button" (click)="confirmClose(report.id)" [disabled]="actionInProgress() === report.id">
+                Clôturer
+              </button>
+              <button type="button" class="secondary" (click)="openReopenForm(report.id)">Rouvrir</button>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  }
+</div>
