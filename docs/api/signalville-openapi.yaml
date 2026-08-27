@@ -675,6 +675,28 @@ paths:
                 items:
                   $ref: '#/components/schemas/HistoryResponse'
 
+    /photos/{photoId}:
+      get:
+        tags: [Signalements]
+        summary: Télécharger le binaire d'une photo de signalement
+        parameters:
+          - name: photoId
+            in: path
+            required: true
+            schema:
+              type: string
+              format: uuid
+        responses:
+          '200':
+            description: Fichier binaire de la photo    (image)
+            content:
+              image/*:
+                schema:
+                  type: string
+                  format: binary
+          '404':
+            $ref: '#/components/responses/NotFound'
+
   /reports/{reportId}/notes:
     get:
       tags: [Interventions]
