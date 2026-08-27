@@ -11,3 +11,10 @@
   font-size: 0.8rem;
   opacity: 0.75;
 }
+
+.brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #1e3a8a;
+  text-decoration: none;   // ← ajouté : évite le soulignement par défaut des liens
+}
