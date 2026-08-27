@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../../core/auth/auth';
+import { Role } from '../../../shared/models/api.models';
 
 @Component({
   selector: 'app-login',
@@ -35,9 +36,9 @@ export class Login {
     const { email, password } = this.form.getRawValue();
 
     this.authService.login({ email: email!, password: password! }).subscribe({
-      next: () => {
+      next: (response) => {
         this.isSubmitting.set(false);
-        this.router.navigate(['/dashboard']);
+        this.router.navigate([this.landingRouteFor(response.user.role)]);
       },
       error: (err) => {
         this.isSubmitting.set(false);
@@ -48,5 +49,23 @@ export class Login {
         }
       },
     });
+  }
+
+  // Point d'entree post-login selon le role. CITOYEN garde le dashboard
+  // existant (S2) ; AGENT et SUPERVISEUR vont directement sur leur espace
+  // de travail (Module 2). ADMINISTRATEUR n'a pas encore d'espace dedie
+  // (prevu Module 3) : /dashboard reste la destination la moins mauvaise
+  // en attendant, plutot qu'une page qui n'existe pas encore.
+  private landingRouteFor(role: Role): string {
+    switch (role) {
+      case 'AGENT':
+        return '/agent';
+      case 'SUPERVISEUR':
+        return '/supervisor';
+      case 'CITOYEN':
+      case 'ADMINISTRATEUR':
+      default:
+        return '/dashboard';
+    }
   }
 }
