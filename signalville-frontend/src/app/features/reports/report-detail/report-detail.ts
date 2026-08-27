@@ -2,10 +2,12 @@ import { Component, ElementRef, OnInit, ViewChild, inject, signal } from '@angul
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { catchError, of } from 'rxjs';
 import * as L from 'leaflet';
 
 import { Reports } from '../reports';
-import { ReportDetailResponse } from '../../../shared/models/api.models';
+import { Interventions } from '../../interventions/interventions';
+import { ReportDetailResponse, InterventionResponse, NoteResponse } from '../../../shared/models/api.models';
 
 // Photo une fois téléchargée et convertie en URL locale affichable.
 interface DisplayPhoto {
@@ -22,6 +24,7 @@ interface DisplayPhoto {
 export class ReportDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly reportsService = inject(Reports);
+  private readonly interventionsService = inject(Interventions);
 
   // Optionnel : le <div> n'existe dans le DOM qu'une fois le signalement
   // chargé (il est derrière un @if dans le template).
@@ -32,6 +35,17 @@ export class ReportDetail implements OnInit {
   readonly isLoading = signal(true);
   readonly errorMessage = signal<string | null>(null);
   readonly displayPhotos = signal<DisplayPhoto[]>([]);
+
+  // Intervention active du signalement, si elle existe. Le backend renvoie
+  // 404 quand il n'y en a pas : on l'intercepte pour rester à null plutôt
+  // que de traiter ça comme une erreur bloquante (ReportDetailResponse.
+  // activeIntervention reste null côté contrat pour l'instant — dette
+  // documentée, ce champ est récupéré ici via un appel dédié
+  // GET /reports/{id}/intervention).
+  readonly activeIntervention = signal<InterventionResponse | null>(null);
+  // Uniquement les notes PUBLIC arrivent ici : le backend filtre déjà côté
+  // citoyen (NoteService.list), donc tout ce qui est reçu est safe à afficher.
+  readonly publicNotes = signal<NoteResponse[]>([]);
 
   // Panneau d'annulation : masqué par défaut, affiché sur clic explicite
   // pour éviter une annulation accidentelle en un seul clic.
@@ -55,6 +69,8 @@ export class ReportDetail implements OnInit {
         this.report.set(report);
         this.isLoading.set(false);
         this.loadPhotos(report.photos.map(p => p.id));
+        this.loadActiveIntervention();
+        this.loadPublicNotes();
 
         // setTimeout(0) : on attend le prochain cycle de rendu pour être sûr
         // que le <div #mapContainer> (conditionné par le @if sur `report()`)
@@ -84,6 +100,23 @@ export class ReportDetail implements OnInit {
         },
       });
     }
+  }
+
+  // Aucune intervention active n'est un cas normal (signalement pas encore
+  // affecté), pas une erreur : on absorbe le 404 avec catchError plutôt que
+  // de laisser remonter dans le flux d'erreur du composant.
+  private loadActiveIntervention(): void {
+    this.interventionsService
+      .getActiveIntervention(this.reportId)
+      .pipe(catchError(() => of(null)))
+      .subscribe(intervention => this.activeIntervention.set(intervention));
+  }
+
+  private loadPublicNotes(): void {
+    this.interventionsService
+      .listNotes(this.reportId)
+      .pipe(catchError(() => of([])))
+      .subscribe(notes => this.publicNotes.set(notes));
   }
 
   private initStaticMap(lat: number, lng: number): void {

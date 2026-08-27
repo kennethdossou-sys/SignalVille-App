@@ -41,6 +41,23 @@
         <div #mapContainer class="map-container"></div>
       </section>
 
+      @if (activeIntervention(); as intervention) {
+        <section class="section intervention-panel">
+          <h2>Suivi du traitement</h2>
+          <p>
+            <strong>Statut :</strong> {{ intervention.status }}
+            — Agent : {{ intervention.agent.firstName }} {{ intervention.agent.lastName }}
+          </p>
+          @if (intervention.startedAt) {
+            <p><strong>Démarré le :</strong> {{ intervention.startedAt | date: 'dd MMM yyyy à HH:mm' }}</p>
+          }
+          @if (intervention.resolvedAt) {
+            <p><strong>Résolu le :</strong> {{ intervention.resolvedAt | date: 'dd MMM yyyy à HH:mm' }}</p>
+            <p><strong>Commentaire de résolution :</strong> {{ intervention.resolutionComment }}</p>
+          }
+        </section>
+      }
+
       @if (displayPhotos().length > 0) {
         <section class="section">
           <h2>Photos</h2>
@@ -74,6 +91,18 @@
           }
         </ul>
       </section>
+
+      @if (publicNotes().length > 0) {
+        <section class="section notes-panel">
+          <h2>Échanges avec le service</h2>
+          @for (note of publicNotes(); track note.id) {
+            <div class="note">
+              <span class="note-author">{{ note.author.firstName }} {{ note.author.lastName }}</span>
+              <p>{{ note.content }}</p>
+            </div>
+          }
+        </section>
+      }
 
       @if (r.status === 'NOUVEAU') {
         <section class="section actions">
