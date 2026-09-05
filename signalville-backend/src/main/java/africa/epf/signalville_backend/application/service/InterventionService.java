@@ -64,37 +64,44 @@ public class InterventionService {
      * de reprise automatique de l'ancienne intervention).
      */
     @Transactional
-    public Intervention assign(AppUserPrincipal principal, UUID reportId, UUID agentId, String instruction) {
-        Report report = requireReport(reportId);
-        requireReportStatus(report, "Affectation impossible", ReportStatus.NOUVEAU, ReportStatus.REOUVERT);
+public Intervention assign(AppUserPrincipal principal, UUID reportId, UUID agentId, String instruction) {
+    Report report = requireReport(reportId);
+    requireReportStatus(report, "Affectation impossible", ReportStatus.NOUVEAU, ReportStatus.REOUVERT);
 
-        // Garde-fou applicatif en plus de l'index unique partiel en base :
-        // on veut une erreur metier explicite (409) plutot qu'une erreur SQL brute.
-        interventionRepository.findActiveByReportId(reportId).ifPresent(existing -> {
-            throw new BusinessRuleException("Ce signalement a deja une intervention active");
-        });
+    interventionRepository.findActiveByReportId(reportId).ifPresent(existing -> {
+        throw new BusinessRuleException("Ce signalement a deja une intervention active");
+    });
 
-        User agent = requireEligibleAgent(agentId);
-        User supervisor = userRepository.getReferenceById(principal.id());
+    User agent = requireEligibleAgent(agentId);
 
-        Intervention intervention = Intervention.builder()
-                .report(report)
-                .agent(agent)
-                .status(InterventionStatus.AFFECTEE)
-                .instruction(blankToNull(instruction))
-                .build();
-        interventionRepository.save(intervention);
-
-        transitionReportStatus(report, ReportStatus.AFFECTE,
-                "Affecte a " + agent.getFirstName() + " " + agent.getLastName(), supervisor);
-
-        notificationService.notify(agent, "Nouvelle affectation",
-                "Le signalement " + report.getReference() + " vous a ete affecte.",
-                "/reports/" + report.getId());
-
-        log.info("Signalement {} affecte a {} par {}", report.getReference(), agent.getEmail(), principal.email());
-        return intervention;
+    // Regle metier (Seance 4) : un signalement REOUVERT ne peut pas etre
+    // reaffecte au meme agent que celui de la derniere intervention. Une
+    // reouverture signale une resolution ratee ; reaffecter au meme agent
+    // sans regard exterieur risquerait de reproduire le meme echec.
+    if (report.getStatus() == ReportStatus.REOUVERT) {
+        requireDifferentFromLastAgent(reportId, agentId);
     }
+
+    User supervisor = userRepository.getReferenceById(principal.id());
+
+    Intervention intervention = Intervention.builder()
+            .report(report)
+            .agent(agent)
+            .status(InterventionStatus.AFFECTEE)
+            .instruction(blankToNull(instruction))
+            .build();
+    interventionRepository.save(intervention);
+
+    transitionReportStatus(report, ReportStatus.AFFECTE,
+            "Affecte a " + agent.getFirstName() + " " + agent.getLastName(), supervisor);
+
+    notificationService.notify(agent, "Nouvelle affectation",
+            "Le signalement " + report.getReference() + " vous a ete affecte.",
+            "/reports/" + report.getId());
+
+    log.info("Signalement {} affecte a {} par {}", report.getReference(), agent.getEmail(), principal.email());
+    return intervention;
+}
 
     /**
      * Reaffecte un signalement en cours de traitement a un autre agent. Cloture
@@ -387,4 +394,18 @@ public class InterventionService {
     private String blankToNull(String value) {
         return value == null || value.isBlank() ? null : value.trim();
     }
+
+    private void requireDifferentFromLastAgent(UUID reportId, UUID agentId) {
+    interventionRepository.findByReportIdOrderByAssignedAtDesc(reportId).stream()
+            .findFirst()
+            .ifPresent(lastIntervention -> {
+                if (lastIntervention.getAgent().getId().equals(agentId)) {
+                    throw new BusinessRuleException(
+                            "Ce signalement a ete rouvert : l'agent precedent ("
+                                    + lastIntervention.getAgent().getFirstName() + " "
+                                    + lastIntervention.getAgent().getLastName()
+                                    + ") ne peut pas etre reaffecte sur ce dossier");
+                }
+            });
+}
 }
