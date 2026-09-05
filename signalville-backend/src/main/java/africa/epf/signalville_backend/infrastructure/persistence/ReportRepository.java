@@ -21,10 +21,6 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
     @Query("select r from Report r join fetch r.category left join fetch r.photos where r.id = :id")
     Optional<Report> findDetailById(@Param("id") UUID id);
 
-    /**
-     * Recherche paginee restreinte a un citoyen. Les filtres optionnels sont
-     * neutralises lorsqu'ils valent null, ce qui evite une Specification pour un besoin simple.
-     */
     @Query("""
             select r from Report r
             where r.citizen.id = :citizenId
@@ -42,7 +38,6 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
                                   @Param("search") String search,
                                   Pageable pageable);
 
-    /** Vue elargie (agent, superviseur, administrateur) : pas de restriction de propriete. */
     @Query("""
             select r from Report r
             where (:status     is null or r.status   = :status)
@@ -58,37 +53,12 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
                            @Param("search") String search,
                            Pageable pageable);
 
-    // ------------------------------------------------------------------
-    // Module 3 — Statistiques et tableaux de bord
-    //
-    // NOTE : le calcul de averageProcessingHours / targetComplianceRate
-    // n'est volontairement pas ici. Il depend de StatusHistory (source de
-    // verite retenue pour la date de cloture), voir StatusHistoryRepository.
-    // ------------------------------------------------------------------
-
-    /**
-     * Repartition du nombre de signalements par statut, tous roles confondus.
-     * Alimente StatisticsResponse.byStatus.
-     * Chaque ligne du resultat : [ReportStatus status, Long count].
-     */
     @Query("select r.status, count(r) from Report r group by r.status")
     List<Object[]> countGroupedByStatus();
 
-    /**
-     * Repartition du nombre de signalements par categorie.
-     * Alimente StatisticsResponse.byCategory.
-     * Chaque ligne du resultat : [String categoryName, Long count].
-     */
     @Query("select r.category.name, count(r) from Report r group by r.category.name")
     List<Object[]> countGroupedByCategory();
 
-    /**
-     * Repartition du nombre de signalements par quartier. Les signalements
-     * sans quartier renseigne (champ optionnel) sont exclus plutot que
-     * comptes sous une cle null, pour ne pas polluer l'agregat cote front.
-     * Alimente StatisticsResponse.byDistrict et SupervisorDashboardResponse.byDistrict.
-     * Chaque ligne du resultat : [String district, Long count].
-     */
     @Query("""
             select r.district, count(r) from Report r
             where r.district is not null
@@ -96,32 +66,11 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
             """)
     List<Object[]> countGroupedByDistrict();
 
-    /**
-     * Nombre de signalements crees dans les dernieres 24h, tous statuts confondus.
-     * Indicateur de flux entrant, distinct du stock a affecter (voir countByStatus
-     * pour NOUVEAU/REOUVERT). Nomme volontairement last24HoursCount et non
-     * "newCount", pour ne pas entrer en collision de sens avec ReportStatus.NOUVEAU.
-     */
     @Query("select count(r) from Report r where r.createdAt >= :since")
     long countCreatedSince(@Param("since") LocalDateTime since);
 
-    /**
-     * Nombre de signalements dans un statut donne. Utilise pour unassignedCount
-     * (NOUVEAU + REOUVERT), reopenedCount (REOUVERT), inProgressCount
-     * (AFFECTE + EN_COURS), closedCount (CLOTURE) — sans dupliquer une requete
-     * de comptage groupe deja disponible via countGroupedByStatus, quand un
-     * seul statut est necessaire.
-     */
     long countByStatus(ReportStatus status);
 
-    /**
-     * Signalements actuellement critiques : priorite effective de l'instance
-     * (Report.priority) egale a CRITIQUE, source de verite retenue plutot que
-     * Category.defaultPriority (decision actee en Seance 4). Exclut les etats
-     * terminaux : un signalement CLOTURE, REJETE ou ANNULE n'est plus une
-     * urgence a traiter, quelle que soit sa priorite.
-     * Alimente SupervisorDashboardResponse.criticalCount / criticalReports.
-     */
     @Query("""
             select r from Report r
             where r.priority = africa.epf.signalville_backend.domain.model.Priority.CRITIQUE
@@ -133,11 +82,28 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
             """)
     List<Report> findCriticalActive();
 
-    /**
-     * Signalements dans un statut donne, du plus ancien au plus recent selon
-     * leur derniere modification. Utilise pour reportsToVerify (RESOLU) et
-     * reopenedReports (REOUVERT) : dans les deux cas, les dossiers en attente
-     * depuis le plus longtemps remontent en premier.
-     */
     List<Report> findByStatusOrderByUpdatedAtAsc(ReportStatus status);
+
+    // ------------------------------------------------------------------
+    // Module 3 — Timeline (GET /statistics/timeline)
+    // ------------------------------------------------------------------
+
+    /**
+     * Nombre de signalements crees, groupes par periode (jour/semaine/mois
+     * selon granularity). date_trunc est une fonction PostgreSQL native,
+     * pas JPQL standard : requete native necessaire. granularity et les
+     * bornes de date restent des parametres lies (aucune concatenation de
+     * texte), meme niveau de securite qu'une requete JPQL.
+     * Chaque ligne du resultat : [Timestamp period, Long count].
+     */
+    @Query(value = """
+            select date_trunc(:granularity, created_at) as period, count(*) as cnt
+            from reports
+            where created_at >= :dateFrom and created_at < :dateToExclusive
+            group by period
+            order by period
+            """, nativeQuery = true)
+    List<Object[]> countCreatedGroupedByPeriod(@Param("granularity") String granularity,
+                                                @Param("dateFrom") LocalDateTime dateFrom,
+                                                @Param("dateToExclusive") LocalDateTime dateToExclusive);
 }
