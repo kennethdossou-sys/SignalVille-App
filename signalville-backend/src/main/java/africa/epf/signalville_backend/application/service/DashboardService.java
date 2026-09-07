@@ -1,59 +1,59 @@
 package africa.epf.signalville_backend.application.service;
 
+import africa.epf.signalville_backend.api.dto.response.AgentDashboardResponse;
+import africa.epf.signalville_backend.api.dto.response.CitizenDashboardResponse;
 import africa.epf.signalville_backend.api.dto.response.ReportResponse;
 import africa.epf.signalville_backend.api.dto.response.SupervisorDashboardResponse;
 import africa.epf.signalville_backend.application.mapper.ReportMapper;
+import africa.epf.signalville_backend.domain.model.Intervention;
+import africa.epf.signalville_backend.domain.model.InterventionStatus;
 import africa.epf.signalville_backend.domain.model.Report;
 import africa.epf.signalville_backend.domain.model.ReportStatus;
+import africa.epf.signalville_backend.infrastructure.persistence.InterventionRepository;
+import africa.epf.signalville_backend.infrastructure.persistence.NotificationRepository;
 import africa.epf.signalville_backend.infrastructure.persistence.ReportRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+//import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Construit les tableaux de bord par rôle.
  *
- * Périmètre de cette tranche (Séance 4, chantier statistiques + dashboard
- * superviseur) : uniquement getSupervisorDashboard(). Les dashboards citoyen,
- * agent et administrateur nécessitent respectivement NotificationRepository,
- * InterventionRepository (interventions en cours de l'agent) et UserRepository
- * (comptage par rôle/statut) — non couverts ici, à traiter dans une tranche
- * ultérieure une fois ces dépôts confirmés.
+ * Périmètre actuel : superviseur, citoyen, agent. getAdminDashboard() reste
+ * à écrire — dépend de UserRepository/CategoryRepository, traité séparément.
  */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class DashboardService {
 
-    /**
-     * Nombre de dossiers affichés dans les listes courtes du dashboard
-     * (reportsToVerify, criticalReports, reopenedReports). Pas de pagination
-     * sur ces widgets : ce sont des indicateurs de pilotage, pas des listes
-     * de travail exhaustives (celles-ci restent accessibles via GET /reports,
-     * paginé).
-     */
     private static final int SHORT_LIST_SIZE = 10;
 
+    private static final List<ReportStatus> OPEN_STATUSES = List.of(
+            ReportStatus.NOUVEAU, ReportStatus.AFFECTE, ReportStatus.EN_COURS, ReportStatus.REOUVERT);
+
+    private static final List<ReportStatus> RESOLVED_STATUSES = List.of(
+            ReportStatus.RESOLU, ReportStatus.CLOTURE);
+
     private final ReportRepository reportRepository;
+    private final NotificationRepository notificationRepository;
+    private final InterventionRepository interventionRepository;
 
     public SupervisorDashboardResponse getSupervisorDashboard() {
         long newCount = reportRepository.countByStatus(ReportStatus.NOUVEAU);
         long reopenedCount = reportRepository.countByStatus(ReportStatus.REOUVERT);
-
-        // unassignedCount = NOUVEAU + REOUVERT : les deux sont "à affecter",
-        // reopenedCount reste par ailleurs affiché séparément comme signal
-        // d'alerte (decision validee en Seance 4).
         long unassignedCount = newCount + reopenedCount;
 
         long last24HoursCount = reportRepository.countCreatedSince(LocalDateTime.now().minusHours(24));
 
-        // Strictement AFFECTE + EN_COURS, conformement a la description du
-        // contrat. REOUVERT est deja compte dans unassignedCount/reopenedCount.
         long inProgressCount = reportRepository.countByStatus(ReportStatus.AFFECTE)
                 + reportRepository.countByStatus(ReportStatus.EN_COURS);
 
@@ -67,10 +67,6 @@ public class DashboardService {
         Map<String, Long> byCategory = toStringKeyedMap(reportRepository.countGroupedByCategory());
         Map<String, Long> byDistrict = toStringKeyedMap(reportRepository.countGroupedByDistrict());
 
-        List<ReportResponse> reportsToVerify = toShortList(toVerify);
-        List<ReportResponse> criticalReports = toShortList(critical);
-        List<ReportResponse> reopenedReports = toShortList(reopened);
-
         return new SupervisorDashboardResponse(
                 unassignedCount,
                 reopenedCount,
@@ -82,9 +78,87 @@ public class DashboardService {
                 byStatus,
                 byCategory,
                 byDistrict,
-                reportsToVerify,
-                criticalReports,
-                reopenedReports);
+                toShortList(toVerify),
+                toShortList(critical),
+                toShortList(reopened));
+    }
+
+    public CitizenDashboardResponse getCitizenDashboard(UUID citizenId) {
+        long totalReports = reportRepository.countByCitizenIdAndStatusIn(citizenId, List.of(ReportStatus.values()));
+        long openReports = reportRepository.countByCitizenIdAndStatusIn(citizenId, OPEN_STATUSES);
+        long resolvedReports = reportRepository.countByCitizenIdAndStatusIn(citizenId, RESOLVED_STATUSES);
+        long unreadNotifications = notificationRepository.countByRecipientIdAndReadFalse(citizenId);
+
+        List<Report> recent = reportRepository.findByCitizenIdOrderByCreatedAtDesc(
+                citizenId, PageRequest.of(0, SHORT_LIST_SIZE));
+
+        Map<String, Long> byStatus = toStringKeyedMap(reportRepository.countGroupedByStatusForCitizen(citizenId));
+
+        List<ReportResponse> recentReports = recent.stream().map(ReportMapper::toResponse).toList();
+
+        return new CitizenDashboardResponse(
+                totalReports,
+                byStatus,
+                openReports,
+                resolvedReports,
+                unreadNotifications,
+                recentReports);
+    }
+
+    /**
+     * Dashboard de l'espace agent. assignedCount (AFFECTEE) et
+     * inProgressCount (EN_COURS) sont deux compteurs distincts et exclusifs.
+     * resolvedCount est un cumul total, cohérent avec
+     * AgentStatisticsResponse.resolvedCount. averageProcessingHours calculée
+     * uniquement sur les interventions RESOLUE de cet agent (resolvedAt -
+     * startedAt), même définition que /statistics/agents.
+     */
+    public AgentDashboardResponse getAgentDashboard(UUID agentId) {
+        List<Intervention> active = interventionRepository.findActiveByAgentId(agentId);
+
+        long assignedCount = active.stream()
+                .filter(i -> i.getStatus() == InterventionStatus.AFFECTEE)
+                .count();
+        long inProgressCount = active.stream()
+                .filter(i -> i.getStatus() == InterventionStatus.EN_COURS)
+                .count();
+
+        long unreadNotifications = notificationRepository.countByRecipientIdAndReadFalse(agentId);
+
+        AgentResolvedMetrics metrics = computeAgentResolvedMetrics(agentId);
+
+        List<ReportResponse> currentInterventions = active.stream()
+                .map(Intervention::getReport)
+                .map(ReportMapper::toResponse)
+                .toList();
+
+        return new AgentDashboardResponse(
+                assignedCount,
+                inProgressCount,
+                metrics.resolvedCount(),
+                metrics.averageProcessingHours(),
+                unreadNotifications,
+                currentInterventions);
+    }
+
+    private AgentResolvedMetrics computeAgentResolvedMetrics(UUID agentId) {
+        // Reutilise les agregations deja ecrites pour /statistics/agents,
+        // filtrees sur cet agent precis plutot que d'ecrire une requete
+        // dediee redondante.
+        
+        long resolvedCount = interventionRepository.countResolvedGroupedByAgent().stream()
+                .filter(row -> agentId.equals(row[0]))
+                .map(row -> (Long) row[1])
+                .findFirst()
+                .orElse(0L);
+
+        double averageProcessingHours = interventionRepository.averageProcessingHoursGroupedByAgent().stream()
+                .filter(row -> agentId.equals(row[0]))
+                .map(row -> (Double) row[1])
+                .findFirst()
+                .orElse(0.0);
+
+        return new AgentResolvedMetrics(resolvedCount, averageProcessingHours);
     }
 
     private List<ReportResponse> toShortList(List<Report> reports) {
@@ -97,9 +171,11 @@ public class DashboardService {
     private Map<String, Long> toStringKeyedMap(List<Object[]> rows) {
         Map<String, Long> result = new HashMap<>();
         for (Object[] row : rows) {
-            String key = row[0] != null ? row[0].toString() : "INCONNU";
-            result.put(key, (Long) row[1]);
+            result.put(row[0] != null ? row[0].toString() : "INCONNU", (Long) row[1]);
         }
         return result;
+    }
+
+    private record AgentResolvedMetrics(long resolvedCount, double averageProcessingHours) {
     }
 }

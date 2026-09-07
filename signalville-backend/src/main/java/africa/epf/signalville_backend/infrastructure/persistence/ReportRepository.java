@@ -84,18 +84,6 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
 
     List<Report> findByStatusOrderByUpdatedAtAsc(ReportStatus status);
 
-    // ------------------------------------------------------------------
-    // Module 3 — Timeline (GET /statistics/timeline)
-    // ------------------------------------------------------------------
-
-    /**
-     * Nombre de signalements crees, groupes par periode (jour/semaine/mois
-     * selon granularity). date_trunc est une fonction PostgreSQL native,
-     * pas JPQL standard : requete native necessaire. granularity et les
-     * bornes de date restent des parametres lies (aucune concatenation de
-     * texte), meme niveau de securite qu'une requete JPQL.
-     * Chaque ligne du resultat : [Timestamp period, Long count].
-     */
     @Query(value = """
             select date_trunc(:granularity, created_at) as period, count(*) as cnt
             from reports
@@ -106,4 +94,32 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
     List<Object[]> countCreatedGroupedByPeriod(@Param("granularity") String granularity,
                                                 @Param("dateFrom") LocalDateTime dateFrom,
                                                 @Param("dateToExclusive") LocalDateTime dateToExclusive);
+
+    // ------------------------------------------------------------------
+    // Module 3 — Dashboard citoyen (GET /dashboard/citizen)
+    // ------------------------------------------------------------------
+
+    /**
+     * Nombre de signalements d'un citoyen dans un ensemble de statuts donne.
+     * Utilise pour openReports (NOUVEAU+AFFECTE+EN_COURS+REOUVERT) et
+     * resolvedReports (RESOLU+CLOTURE) — decision Seance 4 : du point de vue
+     * du citoyen, RESOLU et CLOTURE sont tous deux "regle", la distinction
+     * superviseur/agent n'a pas de sens pour lui.
+     */
+    long countByCitizenIdAndStatusIn(UUID citizenId, List<ReportStatus> statuses);
+
+    /**
+     * Repartition par statut des signalements d'un seul citoyen. Distincte de
+     * countGroupedByStatus() (qui melangerait tous les citoyens) : meme
+     * principe d'agregation groupee, mais filtree sur r.citizen.id.
+     * Chaque ligne du resultat : [ReportStatus status, Long count].
+     */
+    @Query("select r.status, count(r) from Report r where r.citizen.id = :citizenId group by r.status")
+    List<Object[]> countGroupedByStatusForCitizen(@Param("citizenId") UUID citizenId);
+
+    /**
+     * Derniers signalements d'un citoyen, tous statuts confondus, pour le
+     * widget recentReports de CitizenDashboardResponse.
+     */
+    List<Report> findByCitizenIdOrderByCreatedAtDesc(UUID citizenId, Pageable pageable);
 }

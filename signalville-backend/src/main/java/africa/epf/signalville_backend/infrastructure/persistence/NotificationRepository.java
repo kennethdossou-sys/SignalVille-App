@@ -26,4 +26,11 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
     @Modifying
     @Query("UPDATE Notification n SET n.read = true WHERE n.recipient.id = :recipientId AND n.read = false")
     void markAllAsReadForRecipient(@Param("recipientId") UUID recipientId);
+
+    /**
+     * Nombre de notifications non lues d'un utilisateur. Utilise pour
+     * unreadNotifications sur les dashboards (citoyen, agent) sans charger
+     * les entites en memoire — juste un COMPTAGE.
+     */
+    long countByRecipientIdAndReadFalse(UUID recipientId);
 }
