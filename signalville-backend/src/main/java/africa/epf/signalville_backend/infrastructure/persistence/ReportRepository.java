@@ -99,27 +99,64 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
     // Module 3 — Dashboard citoyen (GET /dashboard/citizen)
     // ------------------------------------------------------------------
 
-    /**
-     * Nombre de signalements d'un citoyen dans un ensemble de statuts donne.
-     * Utilise pour openReports (NOUVEAU+AFFECTE+EN_COURS+REOUVERT) et
-     * resolvedReports (RESOLU+CLOTURE) — decision Seance 4 : du point de vue
-     * du citoyen, RESOLU et CLOTURE sont tous deux "regle", la distinction
-     * superviseur/agent n'a pas de sens pour lui.
-     */
     long countByCitizenIdAndStatusIn(UUID citizenId, List<ReportStatus> statuses);
 
-    /**
-     * Repartition par statut des signalements d'un seul citoyen. Distincte de
-     * countGroupedByStatus() (qui melangerait tous les citoyens) : meme
-     * principe d'agregation groupee, mais filtree sur r.citizen.id.
-     * Chaque ligne du resultat : [ReportStatus status, Long count].
-     */
     @Query("select r.status, count(r) from Report r where r.citizen.id = :citizenId group by r.status")
     List<Object[]> countGroupedByStatusForCitizen(@Param("citizenId") UUID citizenId);
 
-    /**
-     * Derniers signalements d'un citoyen, tous statuts confondus, pour le
-     * widget recentReports de CitizenDashboardResponse.
-     */
     List<Report> findByCitizenIdOrderByCreatedAtDesc(UUID citizenId, Pageable pageable);
+
+    // ------------------------------------------------------------------
+    // Module 3 — Filtrage temporel (GET /statistics/general)
+    // ------------------------------------------------------------------
+
+    /**
+     * Variantes filtrees par plage de creation des methodes d'agregation
+     * generales. dateFrom/dateTo nullable et null-safe (meme pattern que
+     * searchAll) : absence de bornes = comportement identique aux methodes
+     * non filtrees. dateToExclusive est une borne exclusive (jour suivant
+     * a minuit), pour inclure toute la journee de dateTo.
+     *
+     * cast(:param as timestamp) est necessaire (pas juste :param is null) :
+     * PostgreSQL refuse d'inferer le type d'un parametre nu compare
+     * uniquement via "is null" (SQLState 42P18, "could not determine data
+     * type of parameter"). Le cast force Hibernate a typer explicitement
+     * le parametre dans le SQL genere. Meme necessite que cast(:search as
+     * string) plus haut, deja en place pour les memes raisons.
+     */
+    @Query("""
+            select count(r) from Report r
+            where (cast(:dateFrom as timestamp) is null or r.createdAt >= :dateFrom)
+              and (cast(:dateToExclusive as timestamp) is null or r.createdAt < :dateToExclusive)
+            """)
+    long countInRange(@Param("dateFrom") LocalDateTime dateFrom,
+                       @Param("dateToExclusive") LocalDateTime dateToExclusive);
+
+    @Query("""
+            select r.status, count(r) from Report r
+            where (cast(:dateFrom as timestamp) is null or r.createdAt >= :dateFrom)
+              and (cast(:dateToExclusive as timestamp) is null or r.createdAt < :dateToExclusive)
+            group by r.status
+            """)
+    List<Object[]> countGroupedByStatusInRange(@Param("dateFrom") LocalDateTime dateFrom,
+                                                @Param("dateToExclusive") LocalDateTime dateToExclusive);
+
+    @Query("""
+            select r.category.name, count(r) from Report r
+            where (cast(:dateFrom as timestamp) is null or r.createdAt >= :dateFrom)
+              and (cast(:dateToExclusive as timestamp) is null or r.createdAt < :dateToExclusive)
+            group by r.category.name
+            """)
+    List<Object[]> countGroupedByCategoryInRange(@Param("dateFrom") LocalDateTime dateFrom,
+                                                  @Param("dateToExclusive") LocalDateTime dateToExclusive);
+
+    @Query("""
+            select r.district, count(r) from Report r
+            where r.district is not null
+              and (cast(:dateFrom as timestamp) is null or r.createdAt >= :dateFrom)
+              and (cast(:dateToExclusive as timestamp) is null or r.createdAt < :dateToExclusive)
+            group by r.district
+            """)
+    List<Object[]> countGroupedByDistrictInRange(@Param("dateFrom") LocalDateTime dateFrom,
+                                                  @Param("dateToExclusive") LocalDateTime dateToExclusive);
 }

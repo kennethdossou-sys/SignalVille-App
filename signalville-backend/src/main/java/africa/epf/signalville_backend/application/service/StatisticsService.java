@@ -59,64 +59,76 @@ public class StatisticsService {
     // GET /statistics/general
     // ------------------------------------------------------------------
 
-    public StatisticsResponse getGeneralStatistics() {
-        long totalReports = reportRepository.count();
+    public StatisticsResponse getGeneralStatistics(LocalDate dateFrom, LocalDate dateTo) {
+    LocalDateTime from = dateFrom != null ? dateFrom.atStartOfDay() : null;
+    LocalDateTime toExclusive = dateTo != null ? dateTo.plusDays(1).atStartOfDay() : null;
 
-        Map<String, Long> byStatus = toStringKeyedMap(reportRepository.countGroupedByStatus());
-        Map<String, Long> byCategory = toStringKeyedMap(reportRepository.countGroupedByCategory());
-        Map<String, Long> byDistrict = toStringKeyedMap(reportRepository.countGroupedByDistrict());
+    long totalReports = reportRepository.countInRange(from, toExclusive);
 
-        ProcessingMetrics metrics = computeProcessingMetrics();
+    Map<String, Long> byStatus = toStringKeyedMap(reportRepository.countGroupedByStatusInRange(from, toExclusive));
+    Map<String, Long> byCategory = toStringKeyedMap(reportRepository.countGroupedByCategoryInRange(from, toExclusive));
+    Map<String, Long> byDistrict = toStringKeyedMap(reportRepository.countGroupedByDistrictInRange(from, toExclusive));
 
-        return new StatisticsResponse(
-                totalReports,
-                byStatus,
-                byCategory,
-                byDistrict,
-                metrics.averageProcessingHours(),
-                metrics.targetComplianceRate());
+    ProcessingMetrics metrics = computeProcessingMetrics(from, toExclusive);
+
+    return new StatisticsResponse(
+            totalReports,
+            byStatus,
+            byCategory,
+            byDistrict,
+            metrics.averageProcessingHours(),
+            metrics.targetComplianceRate());
+}
+
+    private ProcessingMetrics computeProcessingMetrics(LocalDateTime from, LocalDateTime toExclusive) {
+    List<Report> closedReports = reportRepository
+            .searchAll(ReportStatus.CLOTURE, null, null, null, Pageable.unpaged())
+            .getContent();
+
+    if (closedReports.isEmpty()) {
+        return new ProcessingMetrics(0.0, 0.0);
     }
 
-    private ProcessingMetrics computeProcessingMetrics() {
-        List<Report> closedReports = reportRepository
-                .searchAll(ReportStatus.CLOTURE, null, null, null, Pageable.unpaged())
-                .getContent();
-
-        if (closedReports.isEmpty()) {
-            return new ProcessingMetrics(0.0, 0.0);
-        }
-
-        Map<UUID, LocalDateTime> lastClosedAtByReportId = new HashMap<>();
-        for (Object[] row : statusHistoryRepository.findLastClosedAtByReportId()) {
-            lastClosedAtByReportId.put((UUID) row[0], (LocalDateTime) row[1]);
-        }
-
-        double totalHours = 0.0;
-        long compliantCount = 0;
-        long measuredCount = 0;
-
-        for (Report report : closedReports) {
-            LocalDateTime lastClosedAt = lastClosedAtByReportId.get(report.getId());
-            if (lastClosedAt == null) {
-                continue;
-            }
-
-            long hours = ChronoUnit.HOURS.between(report.getCreatedAt(), lastClosedAt);
-            totalHours += hours;
-            measuredCount++;
-
-            Integer targetDelayHours = report.getCategory().getTargetDelayHours();
-            if (targetDelayHours != null && hours <= targetDelayHours) {
-                compliantCount++;
-            }
-        }
-
-        if (measuredCount == 0) {
-            return new ProcessingMetrics(0.0, 0.0);
-        }
-
-        return new ProcessingMetrics(totalHours / measuredCount, (compliantCount * 100.0) / measuredCount);
+    Map<UUID, LocalDateTime> lastClosedAtByReportId = new HashMap<>();
+    for (Object[] row : statusHistoryRepository.findLastClosedAtByReportId()) {
+        lastClosedAtByReportId.put((UUID) row[0], (LocalDateTime) row[1]);
     }
+
+    double totalHours = 0.0;
+    long compliantCount = 0;
+    long measuredCount = 0;
+
+    for (Report report : closedReports) {
+        // Filtre par date de creation, coherent avec les autres agregats de
+        // cette reponse — dateFrom/dateTo absents = aucun filtrage (comportement historique).
+        if (from != null && report.getCreatedAt().isBefore(from)) {
+            continue;
+        }
+        if (toExclusive != null && !report.getCreatedAt().isBefore(toExclusive)) {
+            continue;
+        }
+
+        LocalDateTime lastClosedAt = lastClosedAtByReportId.get(report.getId());
+        if (lastClosedAt == null) {
+            continue;
+        }
+
+        long hours = ChronoUnit.HOURS.between(report.getCreatedAt(), lastClosedAt);
+        totalHours += hours;
+        measuredCount++;
+
+        Integer targetDelayHours = report.getCategory().getTargetDelayHours();
+        if (targetDelayHours != null && hours <= targetDelayHours) {
+            compliantCount++;
+        }
+    }
+
+    if (measuredCount == 0) {
+        return new ProcessingMetrics(0.0, 0.0);
+    }
+
+    return new ProcessingMetrics(totalHours / measuredCount, (compliantCount * 100.0) / measuredCount);
+}
 
     // ------------------------------------------------------------------
     // GET /statistics/agents
