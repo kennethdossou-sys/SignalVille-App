@@ -1652,6 +1652,14 @@ components:
           description: Liste courte des signalements réouverts, en attente de réaffectation.
           items:
             $ref: '#/components/schemas/ReportResponse'
+        assignedReports:
+          type: array
+          description: >
+            Liste courte des signalements NOUVEAU ou REOUVERT en attente
+            d'affectation. Complète unassignedCount avec le détail nécessaire
+            à l'action d'affectation côté superviseur.
+          items:
+            $ref: '#/components/schemas/ReportResponse'
     AdminDashboardResponse:
       type: object
       description: Indicateurs d'administration de la plateforme.

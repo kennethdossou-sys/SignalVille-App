@@ -3,15 +3,6 @@ package africa.epf.signalville_backend.api.dto.response;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Tableau de bord du superviseur, exposé par GET /dashboard/supervisor.
- *
- * unassignedCount inclut NOUVEAU et REOUVERT (les deux sont "à affecter") ;
- * reopenedCount est un sous-ensemble affiché séparément comme signal
- * d'alerte. criticalCount/criticalReports filtrent sur Report.priority
- * (état effectif de l'instance), jamais sur Category.defaultPriority.
- * Décisions actées en Séance 4.
- */
 public record SupervisorDashboardResponse(
         long unassignedCount,
         long reopenedCount,
@@ -25,5 +16,6 @@ public record SupervisorDashboardResponse(
         Map<String, Long> byDistrict,
         List<ReportResponse> reportsToVerify,
         List<ReportResponse> criticalReports,
-        List<ReportResponse> reopenedReports) {
+        List<ReportResponse> reopenedReports,
+        List<ReportResponse> unassignedReports) {
 }

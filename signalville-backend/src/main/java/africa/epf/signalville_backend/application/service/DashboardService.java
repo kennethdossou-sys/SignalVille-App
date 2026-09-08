@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 //import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -55,40 +56,49 @@ public class DashboardService {
         
 
     public SupervisorDashboardResponse getSupervisorDashboard() {
-        long newCount = reportRepository.countByStatus(ReportStatus.NOUVEAU);
-        long reopenedCount = reportRepository.countByStatus(ReportStatus.REOUVERT);
-        long unassignedCount = newCount + reopenedCount;
+    List<Report> newReports = reportRepository.findByStatusOrderByUpdatedAtAsc(ReportStatus.NOUVEAU);
+    List<Report> reopenedList = reportRepository.findByStatusOrderByUpdatedAtAsc(ReportStatus.REOUVERT);
 
-        long last24HoursCount = reportRepository.countCreatedSince(LocalDateTime.now().minusHours(24));
+    long newCount = newReports.size();
+    long reopenedCount = reopenedList.size();
+    long unassignedCount = newCount + reopenedCount;
 
-        long inProgressCount = reportRepository.countByStatus(ReportStatus.AFFECTE)
-                + reportRepository.countByStatus(ReportStatus.EN_COURS);
+    // unassignedReports regroupe NOUVEAU et REOUVERT, coherent avec la
+    // definition de unassignedCount — meme liste que le superviseur doit
+    // affecter, qu'il s'agisse d'un premier passage ou d'une reprise.
+    List<Report> unassigned = new ArrayList<>(newReports);
+    unassigned.addAll(reopenedList);
 
-        long closedCount = reportRepository.countByStatus(ReportStatus.CLOTURE);
+    long last24HoursCount = reportRepository.countCreatedSince(LocalDateTime.now().minusHours(24));
 
-        List<Report> toVerify = reportRepository.findByStatusOrderByUpdatedAtAsc(ReportStatus.RESOLU);
-        List<Report> critical = reportRepository.findCriticalActive();
-        List<Report> reopened = reportRepository.findByStatusOrderByUpdatedAtAsc(ReportStatus.REOUVERT);
+    long inProgressCount = reportRepository.countByStatus(ReportStatus.AFFECTE)
+            + reportRepository.countByStatus(ReportStatus.EN_COURS);
 
-        Map<String, Long> byStatus = toStringKeyedMap(reportRepository.countGroupedByStatus());
-        Map<String, Long> byCategory = toStringKeyedMap(reportRepository.countGroupedByCategory());
-        Map<String, Long> byDistrict = toStringKeyedMap(reportRepository.countGroupedByDistrict());
+    long closedCount = reportRepository.countByStatus(ReportStatus.CLOTURE);
 
-        return new SupervisorDashboardResponse(
-                unassignedCount,
-                reopenedCount,
-                last24HoursCount,
-                inProgressCount,
-                (long) toVerify.size(),
-                closedCount,
-                (long) critical.size(),
-                byStatus,
-                byCategory,
-                byDistrict,
-                toShortList(toVerify),
-                toShortList(critical),
-                toShortList(reopened));
-    }
+    List<Report> toVerify = reportRepository.findByStatusOrderByUpdatedAtAsc(ReportStatus.RESOLU);
+    List<Report> critical = reportRepository.findCriticalActive();
+
+    Map<String, Long> byStatus = toStringKeyedMap(reportRepository.countGroupedByStatus());
+    Map<String, Long> byCategory = toStringKeyedMap(reportRepository.countGroupedByCategory());
+    Map<String, Long> byDistrict = toStringKeyedMap(reportRepository.countGroupedByDistrict());
+
+    return new SupervisorDashboardResponse(
+            unassignedCount,
+            reopenedCount,
+            last24HoursCount,
+            inProgressCount,
+            (long) toVerify.size(),
+            closedCount,
+            (long) critical.size(),
+            byStatus,
+            byCategory,
+            byDistrict,
+            toShortList(toVerify),
+            toShortList(critical),
+            toShortList(reopenedList),
+            toShortList(unassigned));
+}
 
     public CitizenDashboardResponse getCitizenDashboard(UUID citizenId) {
         long totalReports = reportRepository.countByCitizenIdAndStatusIn(citizenId, List.of(ReportStatus.values()));
