@@ -1,6 +1,7 @@
 package africa.epf.signalville_backend.api.controller;
 
 import africa.epf.signalville_backend.api.dto.response.AgentDashboardResponse;
+import africa.epf.signalville_backend.api.dto.response.AdminDashboardResponse;
 import africa.epf.signalville_backend.api.dto.response.CitizenDashboardResponse;
 import africa.epf.signalville_backend.api.dto.response.SupervisorDashboardResponse;
 import africa.epf.signalville_backend.application.service.DashboardService;
@@ -37,5 +38,11 @@ public class DashboardController {
     @PreAuthorize("hasRole('AGENT')")
     public AgentDashboardResponse getAgentDashboard(@AuthenticationPrincipal AppUserPrincipal principal) {
         return dashboardService.getAgentDashboard(principal.id());
+    }
+
+    @GetMapping("/dashboard/admin")
+    @PreAuthorize("hasRole('ADMINISTRATEUR')")
+    public AdminDashboardResponse getAdminDashboard() {
+        return dashboardService.getAdminDashboard();
     }
 }

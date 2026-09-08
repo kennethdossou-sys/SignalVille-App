@@ -4,6 +4,7 @@ import africa.epf.signalville_backend.api.dto.response.AgentDashboardResponse;
 import africa.epf.signalville_backend.api.dto.response.CitizenDashboardResponse;
 import africa.epf.signalville_backend.api.dto.response.ReportResponse;
 import africa.epf.signalville_backend.api.dto.response.SupervisorDashboardResponse;
+import africa.epf.signalville_backend.api.dto.response.AdminDashboardResponse;
 import africa.epf.signalville_backend.application.mapper.ReportMapper;
 import africa.epf.signalville_backend.domain.model.Intervention;
 import africa.epf.signalville_backend.domain.model.InterventionStatus;
@@ -12,6 +13,8 @@ import africa.epf.signalville_backend.domain.model.ReportStatus;
 import africa.epf.signalville_backend.infrastructure.persistence.InterventionRepository;
 import africa.epf.signalville_backend.infrastructure.persistence.NotificationRepository;
 import africa.epf.signalville_backend.infrastructure.persistence.ReportRepository;
+import africa.epf.signalville_backend.infrastructure.persistence.CategoryRepository;
+import africa.epf.signalville_backend.infrastructure.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -46,6 +49,10 @@ public class DashboardService {
     private final ReportRepository reportRepository;
     private final NotificationRepository notificationRepository;
     private final InterventionRepository interventionRepository;
+    private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
+
+        
 
     public SupervisorDashboardResponse getSupervisorDashboard() {
         long newCount = reportRepository.countByStatus(ReportStatus.NOUVEAU);
@@ -178,4 +185,31 @@ public class DashboardService {
 
     private record AgentResolvedMetrics(long resolvedCount, double averageProcessingHours) {
     }
+
+    /**
+ * Dashboard administrateur : vue d'ensemble de la plateforme, sans détail
+ * actionnable (contrairement au dashboard superviseur). Réutilise les
+ * agrégations déjà écrites pour le CRUD utilisateurs/catégories, aucune
+ * nouvelle requête d'agrégation nécessaire.
+ */
+public AdminDashboardResponse getAdminDashboard() {
+    long totalUsers = userRepository.count();
+    Map<String, Long> usersByRole = toStringKeyedMap(userRepository.countGroupedByRole());
+    Map<String, Long> usersByStatus = toStringKeyedMap(userRepository.countGroupedByStatus());
+
+    long totalCategories = categoryRepository.count();
+    long activeCategories = categoryRepository.countByActiveTrue();
+
+    long totalReports = reportRepository.count();
+    long reportsLast30Days = reportRepository.countCreatedSince(LocalDateTime.now().minusDays(30));
+
+    return new AdminDashboardResponse(
+            totalUsers,
+            usersByRole,
+            usersByStatus,
+            totalCategories,
+            activeCategories,
+            totalReports,
+            reportsLast30Days);
+}
 }
