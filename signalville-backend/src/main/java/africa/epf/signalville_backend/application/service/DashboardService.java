@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-//import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,10 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Construit les tableaux de bord par rôle.
- *
- * Périmètre actuel : superviseur, citoyen, agent. getAdminDashboard() reste
- * à écrire — dépend de UserRepository/CategoryRepository, traité séparément.
+ * Construit les tableaux de bord par rôle : citoyen, agent, superviseur, admin.
  */
 @Service
 @RequiredArgsConstructor
@@ -53,52 +49,47 @@ public class DashboardService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
 
-        
-
     public SupervisorDashboardResponse getSupervisorDashboard() {
-    List<Report> newReports = reportRepository.findByStatusOrderByUpdatedAtAsc(ReportStatus.NOUVEAU);
-    List<Report> reopenedList = reportRepository.findByStatusOrderByUpdatedAtAsc(ReportStatus.REOUVERT);
+        List<Report> newReports = reportRepository.findByStatusOrderByUpdatedAtAsc(ReportStatus.NOUVEAU);
+        List<Report> reopenedList = reportRepository.findByStatusOrderByUpdatedAtAsc(ReportStatus.REOUVERT);
 
-    long newCount = newReports.size();
-    long reopenedCount = reopenedList.size();
-    long unassignedCount = newCount + reopenedCount;
+        long newCount = newReports.size();
+        long reopenedCount = reopenedList.size();
+        long unassignedCount = newCount + reopenedCount;
 
-    // unassignedReports regroupe NOUVEAU et REOUVERT, coherent avec la
-    // definition de unassignedCount — meme liste que le superviseur doit
-    // affecter, qu'il s'agisse d'un premier passage ou d'une reprise.
-    List<Report> unassigned = new ArrayList<>(newReports);
-    unassigned.addAll(reopenedList);
+        List<Report> unassigned = new ArrayList<>(newReports);
+        unassigned.addAll(reopenedList);
 
-    long last24HoursCount = reportRepository.countCreatedSince(LocalDateTime.now().minusHours(24));
+        long last24HoursCount = reportRepository.countCreatedSince(LocalDateTime.now().minusHours(24));
 
-    long inProgressCount = reportRepository.countByStatus(ReportStatus.AFFECTE)
-            + reportRepository.countByStatus(ReportStatus.EN_COURS);
+        long inProgressCount = reportRepository.countByStatus(ReportStatus.AFFECTE)
+                + reportRepository.countByStatus(ReportStatus.EN_COURS);
 
-    long closedCount = reportRepository.countByStatus(ReportStatus.CLOTURE);
+        long closedCount = reportRepository.countByStatus(ReportStatus.CLOTURE);
 
-    List<Report> toVerify = reportRepository.findByStatusOrderByUpdatedAtAsc(ReportStatus.RESOLU);
-    List<Report> critical = reportRepository.findCriticalActive();
+        List<Report> toVerify = reportRepository.findByStatusOrderByUpdatedAtAsc(ReportStatus.RESOLU);
+        List<Report> critical = reportRepository.findCriticalActive();
 
-    Map<String, Long> byStatus = toStringKeyedMap(reportRepository.countGroupedByStatus());
-    Map<String, Long> byCategory = toStringKeyedMap(reportRepository.countGroupedByCategory());
-    Map<String, Long> byDistrict = toStringKeyedMap(reportRepository.countGroupedByDistrict());
+        Map<String, Long> byStatus = toStringKeyedMap(reportRepository.countGroupedByStatus());
+        Map<String, Long> byCategory = toStringKeyedMap(reportRepository.countGroupedByCategory());
+        Map<String, Long> byDistrict = toStringKeyedMap(reportRepository.countGroupedByDistrict());
 
-    return new SupervisorDashboardResponse(
-            unassignedCount,
-            reopenedCount,
-            last24HoursCount,
-            inProgressCount,
-            (long) toVerify.size(),
-            closedCount,
-            (long) critical.size(),
-            byStatus,
-            byCategory,
-            byDistrict,
-            toShortList(toVerify),
-            toShortList(critical),
-            toShortList(reopenedList),
-            toShortList(unassigned));
-}
+        return new SupervisorDashboardResponse(
+                unassignedCount,
+                reopenedCount,
+                last24HoursCount,
+                inProgressCount,
+                (long) toVerify.size(),
+                closedCount,
+                (long) critical.size(),
+                byStatus,
+                byCategory,
+                byDistrict,
+                toShortList(toVerify),
+                toShortList(critical),
+                toShortList(reopenedList),
+                toShortList(unassigned));
+    }
 
     public CitizenDashboardResponse getCitizenDashboard(UUID citizenId) {
         long totalReports = reportRepository.countByCitizenIdAndStatusIn(citizenId, List.of(ReportStatus.values()));
@@ -122,14 +113,6 @@ public class DashboardService {
                 recentReports);
     }
 
-    /**
-     * Dashboard de l'espace agent. assignedCount (AFFECTEE) et
-     * inProgressCount (EN_COURS) sont deux compteurs distincts et exclusifs.
-     * resolvedCount est un cumul total, cohérent avec
-     * AgentStatisticsResponse.resolvedCount. averageProcessingHours calculée
-     * uniquement sur les interventions RESOLUE de cet agent (resolvedAt -
-     * startedAt), même définition que /statistics/agents.
-     */
     public AgentDashboardResponse getAgentDashboard(UUID agentId) {
         List<Intervention> active = interventionRepository.findActiveByAgentId(agentId);
 
@@ -159,19 +142,17 @@ public class DashboardService {
     }
 
     private AgentResolvedMetrics computeAgentResolvedMetrics(UUID agentId) {
-        // Reutilise les agregations deja ecrites pour /statistics/agents,
-        // filtrees sur cet agent precis plutot que d'ecrire une requete
-        // dediee redondante.
-        
         long resolvedCount = interventionRepository.countResolvedGroupedByAgent().stream()
                 .filter(row -> agentId.equals(row[0]))
                 .map(row -> (Long) row[1])
                 .findFirst()
                 .orElse(0L);
 
+        // Number.doubleValue() gere BigDecimal (type reel retourne par AVG()
+        // PostgreSQL) sans dependre du typage exact renvoye par le driver JDBC.
         double averageProcessingHours = interventionRepository.averageProcessingHoursGroupedByAgent().stream()
                 .filter(row -> agentId.equals(row[0]))
-                .map(row -> (Double) row[1])
+                .map(row -> ((Number) row[1]).doubleValue())
                 .findFirst()
                 .orElse(0.0);
 
@@ -196,30 +177,24 @@ public class DashboardService {
     private record AgentResolvedMetrics(long resolvedCount, double averageProcessingHours) {
     }
 
-    /**
- * Dashboard administrateur : vue d'ensemble de la plateforme, sans détail
- * actionnable (contrairement au dashboard superviseur). Réutilise les
- * agrégations déjà écrites pour le CRUD utilisateurs/catégories, aucune
- * nouvelle requête d'agrégation nécessaire.
- */
-public AdminDashboardResponse getAdminDashboard() {
-    long totalUsers = userRepository.count();
-    Map<String, Long> usersByRole = toStringKeyedMap(userRepository.countGroupedByRole());
-    Map<String, Long> usersByStatus = toStringKeyedMap(userRepository.countGroupedByStatus());
+    public AdminDashboardResponse getAdminDashboard() {
+        long totalUsers = userRepository.count();
+        Map<String, Long> usersByRole = toStringKeyedMap(userRepository.countGroupedByRole());
+        Map<String, Long> usersByStatus = toStringKeyedMap(userRepository.countGroupedByStatus());
 
-    long totalCategories = categoryRepository.count();
-    long activeCategories = categoryRepository.countByActiveTrue();
+        long totalCategories = categoryRepository.count();
+        long activeCategories = categoryRepository.countByActiveTrue();
 
-    long totalReports = reportRepository.count();
-    long reportsLast30Days = reportRepository.countCreatedSince(LocalDateTime.now().minusDays(30));
+        long totalReports = reportRepository.count();
+        long reportsLast30Days = reportRepository.countCreatedSince(LocalDateTime.now().minusDays(30));
 
-    return new AdminDashboardResponse(
-            totalUsers,
-            usersByRole,
-            usersByStatus,
-            totalCategories,
-            activeCategories,
-            totalReports,
-            reportsLast30Days);
-}
+        return new AdminDashboardResponse(
+                totalUsers,
+                usersByRole,
+                usersByStatus,
+                totalCategories,
+                activeCategories,
+                totalReports,
+                reportsLast30Days);
+    }
 }

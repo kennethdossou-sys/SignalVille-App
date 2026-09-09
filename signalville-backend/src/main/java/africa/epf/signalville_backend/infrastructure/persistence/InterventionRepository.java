@@ -12,8 +12,23 @@ import java.util.UUID;
 
 public interface InterventionRepository extends JpaRepository<Intervention, UUID> {
 
+    /**
+     * Recupere l'intervention active d'un signalement, avec l'agent et les
+     * preuves deja charges (JOIN FETCH). InterventionMapper.toResponse()
+     * accede aux deux (agent.getFirstName()/getEmail(), proofs.stream()),
+     * et ces deux relations sont LAZY sur Intervention. Sans ce fetch
+     * explicite, le mapping (fait dans le controleur, hors de la
+     * transaction du service) declenche LazyInitializationException.
+     *
+     * DISTINCT necessaire : LEFT JOIN FETCH sur une collection (proofs)
+     * duplique la ligne principale une fois par preuve associee ; sans
+     * DISTINCT, une intervention a 2 preuves reviendrait comme 2 lignes,
+     * ce qui ferait echouer le retour en Optional (resultat non unique).
+     */
     @Query("""
-            SELECT i FROM Intervention i
+            SELECT DISTINCT i FROM Intervention i
+            JOIN FETCH i.agent
+            LEFT JOIN FETCH i.proofs
             WHERE i.report.id = :reportId
             AND i.status IN (africa.epf.signalville_backend.domain.model.InterventionStatus.AFFECTEE,
                               africa.epf.signalville_backend.domain.model.InterventionStatus.EN_COURS)
@@ -63,7 +78,7 @@ public interface InterventionRepository extends JpaRepository<Intervention, UUID
     List<Object[]> countReassignedGroupedByAgent();
 
     @Query(value = """
-            select agent_id, avg(extract(epoch from (resolved_at - started_at)) / 3600.0)
+            select agent_id, cast(avg(extract(epoch from (resolved_at - started_at)) / 3600.0) as double precision)
             from interventions
             where status = 'RESOLUE'
               and resolved_at is not null
@@ -71,32 +86,4 @@ public interface InterventionRepository extends JpaRepository<Intervention, UUID
             group by agent_id
             """, nativeQuery = true)
     List<Object[]> averageProcessingHoursGroupedByAgent();
-
-    // ------------------------------------------------------------------
-    // Module 3 — Dashboard agent (GET /dashboard/agent)
-    // ------------------------------------------------------------------
-
-    /**
-     * Nombre d'interventions d'un agent dans un statut donne, tous statuts
-     * confondus (pas seulement actifs). Utilise pour assignedCount (AFFECTEE)
-     * et resolvedCount (RESOLUE) — decision Seance 4 : deux compteurs
-     * distincts sans chevauchement, contrairement au superviseur.
-     */
-    long countByAgentIdAndStatus(UUID agentId, InterventionStatus status);
-
-    /**
-     * Delai moyen de traitement effectif (resolvedAt - startedAt, en heures)
-     * pour un seul agent — meme calcul que averageProcessingHoursGroupedByAgent
-     * mais cible sur un agent, pour eviter de charger toute l'agregation
-     * globale juste pour en extraire une ligne dans le dashboard agent.
-     */
-    @Query(value = """
-            select avg(extract(epoch from (resolved_at - started_at)) / 3600.0)
-            from interventions
-            where agent_id = :agentId
-              and status = 'RESOLUE'
-              and resolved_at is not null
-              and started_at is not null
-            """, nativeQuery = true)
-    Double averageProcessingHoursForAgent(@Param("agentId") UUID agentId);
 }
