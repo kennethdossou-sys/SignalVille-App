@@ -333,6 +333,26 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CategoryResponse'
+    /categories/all:
+      get:
+        tags: [Catégories]
+        summary: Lister toutes les catégories, actives et inactives
+        description: >
+          Réservé aux administrateurs. Contrairement à GET /categories (public,
+          actives uniquement), cette route expose l'intégralité du catalogue —
+          nécessaire pour retrouver et réactiver une catégorie désactivée par
+          erreur.
+        responses:
+          '200':
+            description: Liste complète des catégories
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                  $ref: '#/components/schemas/CategoryResponse'
+          '403':
+            $ref: '#/components/responses/Forbidden'
     post:
       tags: [Catégories]
       summary: Créer une catégorie

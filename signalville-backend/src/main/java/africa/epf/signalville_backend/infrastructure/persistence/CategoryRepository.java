@@ -23,4 +23,11 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
 
     /** Utilise par GET /dashboard/admin : nombre de categories actives. */
     long countByActiveTrue();
+
+        /**
+     * Toutes les categories, actives et inactives, triees par nom.
+     * Reserve a GET /categories/all (administration) — GET /categories
+     * (public) reste limite aux actives via findByActiveTrueOrderByNameAsc.
+     */
+    List<Category> findAllByOrderByNameAsc();
 }

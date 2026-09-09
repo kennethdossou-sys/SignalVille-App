@@ -28,6 +28,14 @@ public class CategoryService {
                 .toList();
     }
 
+    /** GET /categories/all. Reserve a l'administrateur. */
+    @Transactional(readOnly = true)
+    public List<CategoryResponse> listAll() {
+        return categoryRepository.findAllByOrderByNameAsc().stream()
+                .map(CategoryMapper::toResponse)
+                .toList();
+    }
+
     /**
      * POST /categories. Reserve a l'administrateur (verifie au niveau
      * controleur). Le nom doit etre unique, insensible a la casse.
@@ -60,6 +68,14 @@ public class CategoryService {
         categoryRepository.save(category);
     }
 
+        /** GET /categories/all. Reserve a l'administrateur. */
+    @Transactional(readOnly = true)
+    public List<CategoryResponse> listAll() {
+        return categoryRepository.findAllByOrderByNameAsc().stream()
+                .map(CategoryMapper::toResponse)
+                .toList();
+    }
+
     private void requireUniqueName(String name, UUID excludeId) {
         boolean exists = excludeId == null
                 ? categoryRepository.existsByNameIgnoreCase(name.trim())
@@ -73,4 +89,6 @@ public class CategoryService {
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> ResourceNotFoundException.of("Categorie", categoryId));
     }
+
+
 }
