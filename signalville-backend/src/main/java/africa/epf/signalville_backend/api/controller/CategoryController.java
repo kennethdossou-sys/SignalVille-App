@@ -52,5 +52,11 @@ public class CategoryController {
                                           @Valid @RequestBody UpdateCategoryStatusRequest request) {
     categoryService.updateStatus(categoryId, request.active());
     return ResponseEntity.noContent().build();
-}
+    }
+
+    @GetMapping("/{categoryId}")
+    @PreAuthorize("hasRole('ADMINISTRATEUR')")
+    public ResponseEntity<CategoryResponse> getById(@PathVariable UUID categoryId) {
+        return ResponseEntity.ok(categoryService.getById(categoryId));
+    }
 }

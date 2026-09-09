@@ -333,26 +333,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CategoryResponse'
-    /categories/all:
-      get:
-        tags: [Catégories]
-        summary: Lister toutes les catégories, actives et inactives
-        description: >
-          Réservé aux administrateurs. Contrairement à GET /categories (public,
-          actives uniquement), cette route expose l'intégralité du catalogue —
-          nécessaire pour retrouver et réactiver une catégorie désactivée par
-          erreur.
-        responses:
-          '200':
-            description: Liste complète des catégories
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                  $ref: '#/components/schemas/CategoryResponse'
-          '403':
-            $ref: '#/components/responses/Forbidden'
     post:
       tags: [Catégories]
       summary: Créer une catégorie
@@ -371,7 +351,46 @@ paths:
               schema:
                 $ref: '#/components/schemas/CategoryResponse'
 
+  /categories/all:
+    get:
+      tags: [Catégories]
+      summary: Lister toutes les catégories, actives et inactives
+      description: >
+        Réservé aux administrateurs. Contrairement à GET /categories (public,
+        actives uniquement), cette route expose l'intégralité du catalogue —
+        nécessaire pour retrouver et réactiver une catégorie désactivée par
+        erreur.
+      responses:
+        '200':
+          description: Liste complète des catégories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   /categories/{categoryId}:
+    get:
+      tags: [Catégories]
+      summary: Consulter une catégorie
+      description: >
+        Réservé aux administrateurs. Retourne la catégorie quel que soit son
+        statut (active ou inactive), contrairement à GET /categories qui ne
+        liste que les actives.
+      parameters:
+        - $ref: '#/components/parameters/CategoryId'
+      responses:
+        '200':
+          description: Catégorie trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
     put:
       tags: [Catégories]
       summary: Modifier une catégorie
@@ -410,7 +429,6 @@ paths:
       responses:
         '204':
           description: Statut modifié
-
   /reports:
     post:
       tags: [Signalements]

@@ -82,5 +82,15 @@ public class CategoryService {
                 .orElseThrow(() -> ResourceNotFoundException.of("Categorie", categoryId));
     }
 
+        /** GET /categories/{id}. Reserve a l'administrateur. */
+    @Transactional(readOnly = true)
+    public CategoryResponse getById(UUID categoryId) {
+        return categoryRepository.findById(categoryId)
+                .map(CategoryMapper::toResponse)
+                .orElseThrow(() -> ResourceNotFoundException.of("Categorie", categoryId));
+    }
+
+
+
 
 }
