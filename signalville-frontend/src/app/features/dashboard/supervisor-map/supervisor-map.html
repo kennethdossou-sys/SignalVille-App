@@ -11,19 +11,29 @@
   }
 
   <div class="filters">
-    <select [(ngModel)]="filterStatus" (change)="applyFilters()">
-      <option value="">Tous les statuts</option>
-      @for (status of statuses; track status) {
-        <option [value]="status">{{ status }}</option>
-      }
-    </select>
+  <select
+    [(ngModel)]="filterStatus"
+    (change)="applyFilters()"
+    aria-label="Filtrer les signalements par statut"
+  >
+    <option value="">Tous les statuts</option>
 
-    <select [(ngModel)]="filterCategoryId" (change)="applyFilters()">
-      <option value="">Toutes les catégories</option>
-      @for (category of categories(); track category.id) {
-        <option [value]="category.id">{{ category.name }}</option>
-      }
-    </select>
+    @for (status of statuses; track status) {
+      <option [value]="status">{{ status }}</option>
+    }
+  </select>
+
+  <select
+    [(ngModel)]="filterCategoryId"
+    (change)="applyFilters()"
+    aria-label="Filtrer les signalements par catégorie"
+  >
+    <option value="">Toutes les catégories</option>
+
+    @for (category of categories(); track category.id) {
+      <option [value]="category.id">{{ category.name }}</option>
+    }
+  </select>
 
     @if (!loading()) {
       <span class="count">{{ reports().length }} signalement(s) affiché(s)</span>

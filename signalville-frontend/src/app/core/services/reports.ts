@@ -15,6 +15,7 @@ export interface ReportListFilters {
   size?: number;
   status?: string;
   search?: string;
+  categoryId?: string;
 }
 
 @Injectable({ providedIn: 'root' })
