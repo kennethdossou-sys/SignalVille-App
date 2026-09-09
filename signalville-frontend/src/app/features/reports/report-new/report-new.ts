@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
 
 import { environment } from '../../../../environments/environment';
-import { Reports } from '../reports';
+import { Reports } from '../../../core/services/reports';
 import { CategoryResponse } from '../../../shared/models/api.models';
 
 const DAKAR_CENTER: L.LatLngTuple = [14.6928, -17.4467];

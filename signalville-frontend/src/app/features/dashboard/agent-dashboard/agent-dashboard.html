@@ -1,0 +1,108 @@
+<div class="agent-dashboard">
+    <header class="top-nav">
+    <a routerLink="/dashboard" class="brand">Mes interventions</a>
+    <div class="user-info">
+      @if (currentUser(); as user) {
+        <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+        <span class="role-badge">{{ user.role }}</span>
+      }
+      <button class="logout-btn" (click)="logout()">Déconnexion</button>
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <p>Chargement…</p>
+  } @else {
+
+    <!-- ============ INDICATEURS ============ -->
+    @if (dashboard(); as stats) {
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <span class="kpi-value">{{ assignedReports().length }}</span>
+          <span class="kpi-label">Interventions actives</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-value">{{ stats.resolvedCount }}</span>
+          <span class="kpi-label">Résolues (total)</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-value">{{ stats.averageProcessingHours | number: '1.0-1' }} h</span>
+          <span class="kpi-label">Délai moyen</span>
+        </div>
+        <div class="kpi-card" [class.kpi-card--warning]="stats.unreadNotifications > 0">
+          <span class="kpi-value">{{ stats.unreadNotifications }}</span>
+          <span class="kpi-label">Notifications non lues</span>
+        </div>
+      </section>
+    }
+
+    @if (assignedReports().length === 0) {
+      <p class="empty">Aucun signalement affecté pour le moment.</p>
+    } @else {
+      @for (report of assignedReports(); track report.id) {
+        <div class="report-card">
+          <div class="report-card__header">
+            <span class="reference">{{ report.reference }}</span>
+            <span class="status status--{{ report.status.toLowerCase() }}">{{ report.status }}</span>
+          </div>
+          <h3>{{ report.title }}</h3>
+          <p class="category">{{ report.category.name }} — {{ report.address }}</p>
+          <a [routerLink]="['/reports', report.id]">Voir le détail</a>
+
+          <div class="actions">
+            @if (report.status === 'AFFECTE') {
+              <button type="button" (click)="startIntervention(report.id)" [disabled]="actionInProgress() === report.id">
+                Démarrer
+              </button>
+            }
+            @if (report.status === 'EN_COURS') {
+              <button type="button" (click)="openResolveForm(report.id)">Résoudre</button>
+            }
+            <button type="button" class="secondary" (click)="toggleNotes(report.id)">
+              Notes {{ openNotesReportId() === report.id ? '▲' : '▼' }}
+            </button>
+          </div>
+
+          @if (openNotesReportId() === report.id) {
+            <div class="notes-panel">
+              @for (note of notes(); track note.id) {
+                <div class="note">
+                  <span class="note__author">{{ note.author.firstName }} {{ note.author.lastName }}</span>
+                  <span class="note__type">{{ note.type }}</span>
+                  <p>{{ note.content }}</p>
+                </div>
+              }
+              <div class="note-form">
+                <textarea [(ngModel)]="newNoteContent" name="note-{{ report.id }}" rows="2" placeholder="Ajouter une note interne…"></textarea>
+                <button type="button" (click)="addNote(report.id)">Ajouter</button>
+              </div>
+            </div>
+          }
+
+          @if (resolvingReportId() === report.id) {
+            <div class="resolve-form">
+              <label>
+                Commentaire de résolution
+                <textarea [(ngModel)]="resolutionComment" name="resolution-{{ report.id }}" rows="3"></textarea>
+              </label>
+              <label>
+                Preuves photo (1 à 3)
+                <input type="file" accept="image/*" multiple (change)="onProofsSelected($event)" />
+              </label>
+              <div class="actions">
+                <button type="button" (click)="confirmResolve(report.id)" [disabled]="actionInProgress() === report.id">
+                  Confirmer la résolution
+                </button>
+                <button type="button" class="secondary" (click)="cancelResolveForm()">Annuler</button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  }
+</div>

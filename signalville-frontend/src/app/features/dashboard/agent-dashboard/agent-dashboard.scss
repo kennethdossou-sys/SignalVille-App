@@ -106,7 +106,7 @@
     font-weight: 700;
     font-size: 1.1rem;
     color: #1e3a8a;
-    text-decoration: none;   // ← ajouté : évite le soulignement par défaut des liens
+    text-decoration: none;
   }
 
   .user-info {
@@ -142,4 +142,44 @@
       background: #f3f4f6;
     }
   }
+}
+
+// ============ KPI (Module 3 — Séance 4) ============
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.kpi-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  background: #fafafa;
+
+  &--warning {
+    background: #fff8e1;
+    border-color: #ffe082;
+  }
+}
+
+.kpi-value {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1976d2;
+}
+
+.kpi-card--warning .kpi-value {
+  color: #f57f17;
+}
+
+.kpi-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.25rem;
 }

@@ -1,32 +1,34 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink,Router } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 
-import { Reports } from '../../reports/reports';
-import { Interventions } from '../interventions';
-import { ReportResponse, NoteResponse } from '../../../shared/models/api.models';
+import { Interventions } from '../../../core/services/interventions';
+import { Dashboards } from '../../../core/services/dashboard';
+import { AgentDashboardResponse, ReportResponse, NoteResponse } from '../../../shared/models/api.models';
 import { AuthService } from '../../../core/auth/auth';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-agent-dashboard',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink,DecimalPipe],
   templateUrl: './agent-dashboard.html',
   styleUrl: './agent-dashboard.scss',
 })
 export class AgentDashboard implements OnInit {
-  private readonly reportsService = inject(Reports);
   private readonly interventionsService = inject(Interventions);
+  private readonly dashboardsService = inject(Dashboards);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  //Recuperer les infos de lutilisateur 
+  //Recuperer les infos de lutilisateur
   readonly currentUser = this.authService.currentUser;
 
-  // Signalements affectes a l'agent connecte : le backend filtre deja par
-  // JWT sur GET /reports pour un role AGENT (meme mecanisme que CITOYEN,
-  // cf. ReportService.list). On combine AFFECTE + EN_COURS.
-  readonly assignedReports = signal<ReportResponse[]>([]);
+  // Etat principal : un seul appel GET /dashboard/agent remplace desormais
+  // les deux appels separes (AFFECTE + EN_COURS) fusionnes cote client.
+  readonly dashboard = signal<AgentDashboardResponse | null>(null);
+  readonly assignedReports = computed<ReportResponse[]>(() => this.dashboard()?.currentInterventions ?? []);
+
   readonly loading = signal(true);
   readonly errorMessage = signal<string | null>(null);
   readonly actionInProgress = signal<string | null>(null);
@@ -42,30 +44,20 @@ export class AgentDashboard implements OnInit {
   selectedProofs: File[] = [];
 
   ngOnInit(): void {
-    this.loadAssigned();
+    this.loadDashboard();
   }
 
-  private loadAssigned(): void {
+  private loadDashboard(): void {
     this.loading.set(true);
     this.errorMessage.set(null);
 
-    // Deux requetes puisque le contrat GET /reports ne permet qu'un seul
-    // statut a la fois ; on les fusionne cote client.
-    this.reportsService.list({ status: 'AFFECTE', size: 50 }).subscribe({
-      next: pageAffecte => {
-        this.reportsService.list({ status: 'EN_COURS', size: 50 }).subscribe({
-          next: pageEnCours => {
-            this.assignedReports.set([...pageAffecte.content, ...pageEnCours.content]);
-            this.loading.set(false);
-          },
-          error: () => {
-            this.errorMessage.set('Impossible de charger les signalements en cours.');
-            this.loading.set(false);
-          },
-        });
+    this.dashboardsService.getAgentDashboard().subscribe({
+      next: dashboard => {
+        this.dashboard.set(dashboard);
+        this.loading.set(false);
       },
       error: () => {
-        this.errorMessage.set('Impossible de charger les signalements affectés.');
+        this.errorMessage.set('Impossible de charger vos interventions.');
         this.loading.set(false);
       },
     });
@@ -78,7 +70,7 @@ export class AgentDashboard implements OnInit {
     this.interventionsService.start(reportId).subscribe({
       next: () => {
         this.actionInProgress.set(null);
-        this.loadAssigned();
+        this.loadDashboard();
       },
       error: () => {
         this.errorMessage.set("Echec du demarrage. Verifiez que l'intervention est bien au statut AFFECTEE.");
@@ -152,7 +144,7 @@ export class AgentDashboard implements OnInit {
       next: () => {
         this.resolvingReportId.set(null);
         this.actionInProgress.set(null);
-        this.loadAssigned();
+        this.loadDashboard();
       },
       error: () => {
         this.errorMessage.set('Echec de la résolution.');
@@ -161,8 +153,7 @@ export class AgentDashboard implements OnInit {
     });
   }
 
-
-  //Deconnexion 
+  //Deconnexion
   logout(): void {
     this.authService.logout().subscribe({
       next: () => this.router.navigate(['/login']),

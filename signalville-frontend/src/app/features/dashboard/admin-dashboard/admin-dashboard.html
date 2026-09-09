@@ -1,0 +1,76 @@
+<div class="admin-dashboard">
+  <header class="top-nav">
+    <a routerLink="/admin" class="brand">SignalVille — Administration</a>
+    <div class="user-info">
+      @if (currentUser(); as user) {
+        <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+        <span class="role-badge">{{ user.role }}</span>
+      }
+      <button class="logout-btn" (click)="logout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <main class="content">
+    <h1>Vue d'ensemble</h1>
+
+    @if (errorMessage()) {
+      <div class="alert alert-error">{{ errorMessage() }}</div>
+    }
+
+    @if (loading()) {
+      <p>Chargement…</p>
+    } @else if (dashboard(); as stats) {
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <span class="kpi-value">{{ stats.totalUsers }}</span>
+          <span class="kpi-label">Utilisateurs</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-value">{{ stats.totalCategories }}</span>
+          <span class="kpi-label">Catégories</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-value">{{ stats.activeCategories }}</span>
+          <span class="kpi-label">Catégories actives</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-value">{{ stats.totalReports }}</span>
+          <span class="kpi-label">Signalements (total)</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-value">{{ stats.reportsLast30Days }}</span>
+          <span class="kpi-label">30 derniers jours</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Répartition des comptes par rôle</h2>
+        <ul class="breakdown-list">
+          @for (entry of stats.usersByRole | keyvalue; track entry.key) {
+            <li>
+              <span>{{ entry.key }}</span>
+              <span class="count">{{ entry.value }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+
+      <section class="panel">
+        <h2>Répartition des comptes par statut</h2>
+        <ul class="breakdown-list">
+          @for (entry of stats.usersByStatus | keyvalue; track entry.key) {
+            <li>
+              <span>{{ entry.key }}</span>
+              <span class="count">{{ entry.value }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <section class="quick-links">
+      <a routerLink="/admin/users" class="quick-link">Gérer les utilisateurs</a>
+      <a routerLink="/admin/categories" class="quick-link">Gérer les catégories</a>
+    </section>
+  </main>
+</div>

@@ -2,11 +2,12 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-import { Reports } from '../../reports/reports';
-import { Interventions } from '../interventions';
+import { Interventions } from '../../../core/services/interventions';
+import { Dashboards } from '../../../core/services/dashboard';
 import {
   AvailableAgentResponse,
   ReportResponse,
+  SupervisorDashboardResponse,
 } from '../../../shared/models/api.models';
 
 @Component({
@@ -17,16 +18,23 @@ import {
   styleUrl: './supervisor-dashboard.scss',
 })
 export class SupervisorDashboard implements OnInit {
-  private readonly reportsService = inject(Reports);
   private readonly interventionsService = inject(Interventions);
+  private readonly dashboardsService = inject(Dashboards);
 
   // === Etat ===
-  readonly newReports = signal<ReportResponse[]>([]);
-  readonly resolvedReports = signal<ReportResponse[]>([]);
-  readonly availableAgents = signal<AvailableAgentResponse[]>([]);
+  readonly dashboard = signal<SupervisorDashboardResponse | null>(null);
   readonly loading = signal(true);
   readonly errorMessage = signal<string | null>(null);
   readonly actionInProgress = signal<string | null>(null);
+
+  // Listes derivees du dashboard, pour garder les templates existants
+  // inchanges autant que possible.
+  readonly newReports = computed<ReportResponse[]>(() => this.dashboard()?.unassignedReports ?? []);
+  readonly resolvedReports = computed<ReportResponse[]>(() => this.dashboard()?.reportsToVerify ?? []);
+  readonly criticalReports = computed<ReportResponse[]>(() => this.dashboard()?.criticalReports ?? []);
+  readonly reopenedReports = computed<ReportResponse[]>(() => this.dashboard()?.reopenedReports ?? []);
+
+  readonly availableAgents = signal<AvailableAgentResponse[]>([]);
 
   // Formulaire d'affectation : quel signalement est en cours d'affectation,
   // et l'agent + instruction saisis pour lui.
@@ -53,25 +61,24 @@ export class SupervisorDashboard implements OnInit {
     this.loading.set(true);
     this.errorMessage.set(null);
 
-    this.reportsService.list({ status: 'NOUVEAU', size: 50 }).subscribe({
-      next: page => this.newReports.set(page.content),
-      error: () => this.errorMessage.set('Impossible de charger les nouveaux signalements.'),
-    });
-
-    this.reportsService.list({ status: 'RESOLU', size: 50 }).subscribe({
-      next: page => this.resolvedReports.set(page.content),
-      error: () => this.errorMessage.set('Impossible de charger les signalements resolus.'),
-    });
-
-    this.interventionsService.listAvailableAgents().subscribe({
-      next: agents => {
-        this.availableAgents.set(agents);
+    this.dashboardsService.getSupervisorDashboard().subscribe({
+      next: dashboard => {
+        this.dashboard.set(dashboard);
         this.loading.set(false);
       },
       error: () => {
-        this.errorMessage.set('Impossible de charger la liste des agents.');
+        this.errorMessage.set('Impossible de charger le tableau de bord.');
         this.loading.set(false);
       },
+    });
+
+    // Quand on ouvre le formulaire d'affectation pour un signalement REOUVERT,
+    // reportId est transmis a listAvailableAgents pour exclure l'agent
+    // precedent (regle metier Seance 4). Charge sans filtre au demarrage ;
+    // recharge cible depuis openAssignForm().
+    this.interventionsService.listAvailableAgents().subscribe({
+      next: agents => this.availableAgents.set(agents),
+      error: () => this.errorMessage.set('Impossible de charger la liste des agents.'),
     });
   }
 
@@ -102,7 +109,7 @@ export class SupervisorDashboard implements OnInit {
           this.loadAll();
         },
         error: () => {
-          this.errorMessage.set("Echec de l'affectation. Verifiez que le signalement est encore au statut NOUVEAU.");
+          this.errorMessage.set("Echec de l'affectation. Verifiez que le signalement est encore au statut NOUVEAU ou REOUVERT.");
           this.actionInProgress.set(null);
         },
       });

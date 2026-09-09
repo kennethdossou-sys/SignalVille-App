@@ -9,6 +9,57 @@
     <p>Chargement…</p>
   } @else {
 
+    <!-- ============ INDICATEURS ============ -->
+    @if (dashboard(); as stats) {
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <span class="kpi-value">{{ stats.unassignedCount }}</span>
+          <span class="kpi-label">À affecter</span>
+        </div>
+        <div class="kpi-card kpi-card--warning">
+          <span class="kpi-value">{{ stats.reopenedCount }}</span>
+          <span class="kpi-label">Réouverts</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-value">{{ stats.inProgressCount }}</span>
+          <span class="kpi-label">En cours</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-value">{{ stats.toVerifyCount }}</span>
+          <span class="kpi-label">À vérifier</span>
+        </div>
+        <div class="kpi-card kpi-card--critical">
+          <span class="kpi-value">{{ stats.criticalCount }}</span>
+          <span class="kpi-label">Critiques</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-value">{{ stats.closedCount }}</span>
+          <span class="kpi-label">Clôturés</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-value">{{ stats.last24HoursCount }}</span>
+          <span class="kpi-label">Dernières 24h</span>
+        </div>
+      </section>
+
+      <!-- ============ ALERTE CRITIQUES ============ -->
+      @if (stats.criticalReports.length > 0) {
+        <section class="panel panel--critical">
+          <h2>Incidents critiques ({{ stats.criticalReports.length }})</h2>
+          <ul class="critical-list">
+            @for (report of stats.criticalReports; track report.id) {
+              <li>
+                <span class="reference">{{ report.reference }}</span>
+                <span>{{ report.title }}</span>
+                <span class="status-badge">{{ report.status }}</span>
+                <a [routerLink]="['/reports', report.id]">Voir</a>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+    }
+
     <!-- ============ NOUVEAUX SIGNALEMENTS A AFFECTER ============ -->
     <section class="panel">
       <h2>Nouveaux signalements à affecter ({{ newReports().length }})</h2>
@@ -22,6 +73,9 @@
           <div class="report-card__header">
             <span class="reference">{{ report.reference }}</span>
             <span class="priority priority--{{ report.priority.toLowerCase() }}">{{ report.priority }}</span>
+            @if (report.status === 'REOUVERT') {
+              <span class="badge badge--reopened">Réouvert</span>
+            }
           </div>
           <h3>{{ report.title }}</h3>
           <p class="category">{{ report.category.name }} — {{ report.address }}</p>

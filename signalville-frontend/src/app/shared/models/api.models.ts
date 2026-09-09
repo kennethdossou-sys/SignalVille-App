@@ -265,6 +265,55 @@ export interface NotificationPage {
 }
 
 // ============================================
+// DASHBOARDS (Module 3)
+// ============================================
+
+export interface CitizenDashboardResponse {
+  totalReports: number;
+  byStatus: Record<string, number>;
+  openReports: number;
+  resolvedReports: number;
+  unreadNotifications: number;
+  recentReports: ReportResponse[];
+}
+
+export interface AgentDashboardResponse {
+  assignedCount: number;
+  inProgressCount: number;
+  resolvedCount: number;
+  averageProcessingHours: number;
+  unreadNotifications: number;
+  currentInterventions: ReportResponse[];
+}
+
+export interface AdminDashboardResponse {
+  totalUsers: number;
+  usersByRole: Record<string, number>;
+  usersByStatus: Record<string, number>;
+  totalCategories: number;
+  activeCategories: number;
+  totalReports: number;
+  reportsLast30Days: number;
+}
+
+export interface SupervisorDashboardResponse {
+  unassignedCount: number;
+  reopenedCount: number;
+  last24HoursCount: number;
+  inProgressCount: number;
+  toVerifyCount: number;
+  closedCount: number;
+  criticalCount: number;
+  byStatus: Record<string, number>;
+  byCategory: Record<string, number>;
+  byDistrict: Record<string, number>;
+  reportsToVerify: ReportResponse[];
+  criticalReports: ReportResponse[];
+  reopenedReports: ReportResponse[];
+  unassignedReports: ReportResponse[];
+}
+
+// ============================================
 // COMMON
 // ============================================
 
