@@ -1,15 +1,4 @@
 <div class="admin-dashboard">
-  <header class="top-nav">
-    <a routerLink="/admin" class="brand">SignalVille — Administration</a>
-    <div class="user-info">
-      @if (currentUser(); as user) {
-        <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
-        <span class="role-badge">{{ user.role }}</span>
-      }
-      <button class="logout-btn" (click)="logout()">Déconnexion</button>
-    </div>
-  </header>
-
   <main class="content">
     <h1>Vue d'ensemble</h1>
 

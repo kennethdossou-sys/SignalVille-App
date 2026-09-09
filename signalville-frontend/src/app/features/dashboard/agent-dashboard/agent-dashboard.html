@@ -1,15 +1,4 @@
 <div class="agent-dashboard">
-    <header class="top-nav">
-    <a routerLink="/dashboard" class="brand">Mes interventions</a>
-    <div class="user-info">
-      @if (currentUser(); as user) {
-        <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
-        <span class="role-badge">{{ user.role }}</span>
-      }
-      <button class="logout-btn" (click)="logout()">Déconnexion</button>
-    </div>
-  </header>
-
   @if (errorMessage()) {
     <div class="alert alert-error">{{ errorMessage() }}</div>
   }
@@ -18,7 +7,6 @@
     <p>Chargement…</p>
   } @else {
 
-    <!-- ============ INDICATEURS ============ -->
     @if (dashboard(); as stats) {
       <section class="kpi-grid">
         <div class="kpi-card">

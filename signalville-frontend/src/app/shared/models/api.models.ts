@@ -313,6 +313,11 @@ export interface SupervisorDashboardResponse {
   unassignedReports: ReportResponse[];
 }
 
+export interface CreateInternalUserResponse {
+  user: UserResponse;
+  temporaryPassword: string;
+}
+
 // ============================================
 // COMMON
 // ============================================

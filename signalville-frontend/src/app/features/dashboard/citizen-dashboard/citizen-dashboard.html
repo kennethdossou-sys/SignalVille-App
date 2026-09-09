@@ -1,15 +1,4 @@
 <div class="dashboard-page">
-  <header class="top-nav">
-    <a routerLink="/dashboard" class="brand">SignalVille</a>
-    <div class="user-info">
-      @if (currentUser(); as user) {
-        <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
-        <span class="role-badge">{{ user.role }}</span>
-      }
-      <button class="logout-btn" (click)="logout()">Déconnexion</button>
-    </div>
-  </header>
-
   <main class="content">
     @if (currentUser(); as user) {
       <div class="header-row">

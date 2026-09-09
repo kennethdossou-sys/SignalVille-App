@@ -42,4 +42,45 @@ export const routes: Routes = [
     loadComponent: () => import('./features/dashboard/agent-dashboard/agent-dashboard').then(m => m.AgentDashboard),
     canActivate: [authGuard],
   },
+  {
+    path: 'admin',
+    loadComponent: () => import('./features/dashboard/admin-dashboard/admin-dashboard').then(m => m.AdminDashboard),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'admin/categories',
+    loadComponent: () => import('./features/admin/categories/category-list/category-list').then(m => m.CategoryList),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'admin/categories/new',
+    loadComponent: () => import('./features/admin/categories/category-form/category-form').then(m => m.CategoryForm),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'admin/categories/:id/edit',
+    loadComponent: () => import('./features/admin/categories/category-form/category-form').then(m => m.CategoryForm),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'admin/users',
+    loadComponent: () => import('./features/admin/users/user-list/user-list').then(m => m.UserList),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'admin/users/new',
+    loadComponent: () => import('./features/admin/users/user-form/user-form').then(m => m.UserForm),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'admin/users/:id/edit',
+    loadComponent: () => import('./features/admin/users/user-form/user-form').then(m => m.UserForm),
+    canActivate: [authGuard],
+  },
+
+  {
+  path: 'supervisor/map',
+  loadComponent: () => import('./features/dashboard/supervisor-map/supervisor-map').then(m => m.SupervisorMap),
+  canActivate: [authGuard],
+},
 ];

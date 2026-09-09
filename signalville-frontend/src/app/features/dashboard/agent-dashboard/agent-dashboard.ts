@@ -1,31 +1,23 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
+import { DecimalPipe } from '@angular/common';
 
 import { Interventions } from '../../../core/services/interventions';
 import { Dashboards } from '../../../core/services/dashboard';
 import { AgentDashboardResponse, ReportResponse, NoteResponse } from '../../../shared/models/api.models';
-import { AuthService } from '../../../core/auth/auth';
-import { DecimalPipe } from '@angular/common';
 
 @Component({
   selector: 'app-agent-dashboard',
   standalone: true,
-  imports: [FormsModule, RouterLink,DecimalPipe],
+  imports: [FormsModule, RouterLink, DecimalPipe],
   templateUrl: './agent-dashboard.html',
   styleUrl: './agent-dashboard.scss',
 })
 export class AgentDashboard implements OnInit {
   private readonly interventionsService = inject(Interventions);
   private readonly dashboardsService = inject(Dashboards);
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
 
-  //Recuperer les infos de lutilisateur
-  readonly currentUser = this.authService.currentUser;
-
-  // Etat principal : un seul appel GET /dashboard/agent remplace desormais
-  // les deux appels separes (AFFECTE + EN_COURS) fusionnes cote client.
   readonly dashboard = signal<AgentDashboardResponse | null>(null);
   readonly assignedReports = computed<ReportResponse[]>(() => this.dashboard()?.currentInterventions ?? []);
 
@@ -33,12 +25,10 @@ export class AgentDashboard implements OnInit {
   readonly errorMessage = signal<string | null>(null);
   readonly actionInProgress = signal<string | null>(null);
 
-  // Notes, chargees a la demande par signalement ouvert.
   readonly openNotesReportId = signal<string | null>(null);
   readonly notes = signal<NoteResponse[]>([]);
   newNoteContent = '';
 
-  // Formulaire de resolution.
   readonly resolvingReportId = signal<string | null>(null);
   resolutionComment = '';
   selectedProofs: File[] = [];
@@ -63,8 +53,6 @@ export class AgentDashboard implements OnInit {
     });
   }
 
-  // === Demarrage ===
-
   startIntervention(reportId: string): void {
     this.actionInProgress.set(reportId);
     this.interventionsService.start(reportId).subscribe({
@@ -78,8 +66,6 @@ export class AgentDashboard implements OnInit {
       },
     });
   }
-
-  // === Notes ===
 
   toggleNotes(reportId: string): void {
     if (this.openNotesReportId() === reportId) {
@@ -106,8 +92,6 @@ export class AgentDashboard implements OnInit {
       error: () => this.errorMessage.set("Echec de l'ajout de la note."),
     });
   }
-
-  // === Resolution ===
 
   openResolveForm(reportId: string): void {
     this.resolvingReportId.set(reportId);
@@ -149,17 +133,6 @@ export class AgentDashboard implements OnInit {
       error: () => {
         this.errorMessage.set('Echec de la résolution.');
         this.actionInProgress.set(null);
-      },
-    });
-  }
-
-  //Deconnexion
-  logout(): void {
-    this.authService.logout().subscribe({
-      next: () => this.router.navigate(['/login']),
-      error: () => {
-        this.authService.forceLocalLogout();
-        this.router.navigate(['/login']);
       },
     });
   }
