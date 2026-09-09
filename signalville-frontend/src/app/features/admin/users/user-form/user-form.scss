@@ -1,0 +1,157 @@
+.user-form-page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.3rem;
+  }
+}
+
+.back-link {
+  font-size: 0.85rem;
+  color: #1976d2;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.alert-error {
+  background: #fdecea;
+  color: #b3261e;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.form {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+  }
+
+  input,
+  select {
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.9rem;
+
+    &:disabled {
+      background: #f5f5f5;
+      color: #888;
+    }
+  }
+}
+
+.field-error {
+  color: #b3261e;
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.field-hint {
+  color: #888;
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+
+  button {
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background: #1976d2;
+    color: white;
+    font-weight: 500;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.secondary-btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  background: #eee;
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+
+  &:hover {
+    background: #ddd;
+  }
+}
+
+.password-reveal {
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+
+  h2 {
+    margin-top: 0;
+    color: #f57f17;
+    font-size: 1.1rem;
+  }
+
+  p {
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .password-box {
+    font-family: monospace;
+    font-size: 1.3rem;
+    font-weight: 700;
+    background: white;
+    border: 1px dashed #f57f17;
+    border-radius: 6px;
+    padding: 1rem;
+    margin: 1rem 0;
+    letter-spacing: 0.1em;
+  }
+
+  button {
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background: #1976d2;
+    color: white;
+    font-weight: 500;
+  }
+}
