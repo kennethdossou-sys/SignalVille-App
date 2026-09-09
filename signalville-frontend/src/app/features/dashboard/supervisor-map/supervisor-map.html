@@ -1,0 +1,39 @@
+<div class="supervisor-map-page">
+  <header class="page-header">
+    <div>
+      <h1>Carte des signalements</h1>
+      <a routerLink="/supervisor" class="back-link">← Retour au tableau de bord</a>
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  <div class="filters">
+    <select [(ngModel)]="filterStatus" (change)="applyFilters()">
+      <option value="">Tous les statuts</option>
+      @for (status of statuses; track status) {
+        <option [value]="status">{{ status }}</option>
+      }
+    </select>
+
+    <select [(ngModel)]="filterCategoryId" (change)="applyFilters()">
+      <option value="">Toutes les catégories</option>
+      @for (category of categories(); track category.id) {
+        <option [value]="category.id">{{ category.name }}</option>
+      }
+    </select>
+
+    @if (!loading()) {
+      <span class="count">{{ reports().length }} signalement(s) affiché(s)</span>
+    }
+  </div>
+
+  <div class="map-wrapper">
+    @if (loading()) {
+      <div class="map-loading">Chargement des signalements…</div>
+    }
+    <div #mapContainer class="map-container"></div>
+  </div>
+</div>
