@@ -1,96 +1,40 @@
 package africa.epf.signalville_backend.application.service;
 
-import africa.epf.signalville_backend.api.dto.request.CategoryRequest;
-import africa.epf.signalville_backend.api.dto.response.CategoryResponse;
-import africa.epf.signalville_backend.application.mapper.CategoryMapper;
-import africa.epf.signalville_backend.domain.exception.BusinessRuleException;
-import africa.epf.signalville_backend.domain.exception.ResourceNotFoundException;
-import africa.epf.signalville_backend.domain.model.Category;
-import africa.epf.signalville_backend.infrastructure.persistence.CategoryRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.UUID;
 
-@Service
-@RequiredArgsConstructor
-public class CategoryService {
+import africa.epf.signalville_backend.api.dto.request.CategoryRequest;
+import africa.epf.signalville_backend.api.dto.response.CategoryResponse;
 
-    private final CategoryRepository categoryRepository;
+/**
+ * Contrat du service de gestion des categories. L'implementation vit dans
+ * application.service.impl.CategoryServiceImpl — les appelants (controleurs,
+ * autres services) ne dependent que de cette interface, jamais de sa
+ * realisation concrete (inversion de dependance).
+ */
+public interface CategoryService {
 
     /** GET /categories du contrat : uniquement les categories actives. */
-    @Transactional(readOnly = true)
-    public List<CategoryResponse> listActive() {
-        return categoryRepository.findByActiveTrueOrderByNameAsc().stream()
-                .map(CategoryMapper::toResponse)
-                .toList();
-    }
+    List<CategoryResponse> listActive();
 
     /** GET /categories/all. Reserve a l'administrateur. */
-    @Transactional(readOnly = true)
-    public List<CategoryResponse> listAll() {
-        return categoryRepository.findAllByOrderByNameAsc().stream()
-                .map(CategoryMapper::toResponse)
-                .toList();
-    }
+    List<CategoryResponse> listAll();
+
+    /** GET /categories/{id}. Reserve a l'administrateur. */
+    CategoryResponse getById(UUID categoryId);
 
     /**
      * POST /categories. Reserve a l'administrateur (verifie au niveau
      * controleur). Le nom doit etre unique, insensible a la casse.
      */
-    @Transactional
-    public CategoryResponse create(CategoryRequest request) {
-        requireUniqueName(request.name(), null);
-        Category saved = categoryRepository.save(CategoryMapper.toEntity(request));
-        return CategoryMapper.toResponse(saved);
-    }
+    CategoryResponse create(CategoryRequest request);
 
     /**
      * PUT /categories/{id}. Ne modifie jamais le statut actif — voir
      * CategoryMapper.applyUpdate pour la justification.
      */
-    @Transactional
-    public CategoryResponse update(UUID categoryId, CategoryRequest request) {
-        Category category = requireCategory(categoryId);
-        requireUniqueName(request.name(), categoryId);
-        CategoryMapper.applyUpdate(category, request);
-        Category saved = categoryRepository.save(category);
-        return CategoryMapper.toResponse(saved);
-    }
+    CategoryResponse update(UUID categoryId, CategoryRequest request);
 
     /** PATCH /categories/{id}/status. Seul point d'entree pour activer/desactiver. */
-    @Transactional
-    public void updateStatus(UUID categoryId, boolean active) {
-        Category category = requireCategory(categoryId);
-        category.setActive(active);
-        categoryRepository.save(category);
-    }
-
-    private void requireUniqueName(String name, UUID excludeId) {
-        boolean exists = excludeId == null
-                ? categoryRepository.existsByNameIgnoreCase(name.trim())
-                : categoryRepository.existsByNameIgnoreCaseAndIdNot(name.trim(), excludeId);
-        if (exists) {
-            throw new BusinessRuleException("Une categorie nommee '" + name.trim() + "' existe deja");
-        }
-    }
-
-    private Category requireCategory(UUID categoryId) {
-        return categoryRepository.findById(categoryId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Categorie", categoryId));
-    }
-
-        /** GET /categories/{id}. Reserve a l'administrateur. */
-    @Transactional(readOnly = true)
-    public CategoryResponse getById(UUID categoryId) {
-        return categoryRepository.findById(categoryId)
-                .map(CategoryMapper::toResponse)
-                .orElseThrow(() -> ResourceNotFoundException.of("Categorie", categoryId));
-    }
-
-
-
-
+    void updateStatus(UUID categoryId, boolean active);
 }
