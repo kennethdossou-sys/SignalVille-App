@@ -33,7 +33,7 @@
               <div class="description">{{ category.description }}</div>
             </td>
             <td>
-              <span class="priority priority--{{ category.defaultPriority.toLowerCase() }}">
+              <span class="priority-badge" [class]="'priority-' + category.defaultPriority">
                 {{ category.defaultPriority }}
               </span>
             </td>

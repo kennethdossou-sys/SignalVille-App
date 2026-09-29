@@ -1,6 +1,5 @@
-import { Component, ElementRef, OnInit, AfterViewInit, ViewChild, inject, signal, effect } from '@angular/core';
+import { Component, ElementRef, OnInit, AfterViewInit, ViewChild, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
 
@@ -10,8 +9,8 @@ import { CategoryResponse, ReportResponse, ReportStatus } from '../../../shared/
 
 const DAKAR_CENTER: L.LatLngTuple = [14.6928, -17.4467];
 
-// Couleurs par statut, cohérentes avec les badges déjà utilisés dans
-// citizen-dashboard.scss (.status-NOUVEAU, .status-AFFECTE, etc.).
+// Couleurs par statut, cohérentes avec les badges globaux (styles.scss
+// .status-NOUVEAU, .status-AFFECTE, etc.) et réutilisées pour la légende.
 const STATUS_COLORS: Record<ReportStatus, string> = {
   NOUVEAU: '#1e40af',
   AFFECTE: '#6d28d9',
@@ -23,10 +22,21 @@ const STATUS_COLORS: Record<ReportStatus, string> = {
   ANNULE: '#9ca3af',
 };
 
+const STATUS_LABELS: Record<ReportStatus, string> = {
+  NOUVEAU: 'Nouveau',
+  AFFECTE: 'Affecté',
+  EN_COURS: 'En cours',
+  RESOLU: 'Résolu',
+  CLOTURE: 'Clôturé',
+  REOUVERT: 'Réouvert',
+  REJETE: 'Rejeté',
+  ANNULE: 'Annulé',
+};
+
 @Component({
   selector: 'app-supervisor-map',
   standalone: true,
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink],
   templateUrl: './supervisor-map.html',
   styleUrl: './supervisor-map.scss',
 })
@@ -36,16 +46,23 @@ export class SupervisorMap implements OnInit, AfterViewInit {
 
   @ViewChild('mapContainer') mapContainerRef!: ElementRef<HTMLDivElement>;
   private map?: L.Map;
-  private markers: L.Marker[] = [];
+  private markersByReportId = new Map<string, L.Marker>();
 
   readonly categories = signal<CategoryResponse[]>([]);
   readonly reports = signal<ReportResponse[]>([]);
   readonly loading = signal(true);
   readonly errorMessage = signal<string | null>(null);
+  readonly selectedReportId = signal<string | null>(null);
 
   readonly statuses: ReportStatus[] = [
     'NOUVEAU', 'AFFECTE', 'EN_COURS', 'RESOLU', 'CLOTURE', 'REOUVERT', 'REJETE', 'ANNULE',
   ];
+
+  readonly legendItems = this.statuses.map(status => ({
+    status,
+    color: STATUS_COLORS[status],
+    label: STATUS_LABELS[status],
+  }));
 
   filterStatus: ReportStatus | '' = '';
   filterCategoryId = '';
@@ -89,7 +106,7 @@ export class SupervisorMap implements OnInit, AfterViewInit {
       .list({
         status: this.filterStatus || undefined,
         categoryId: this.filterCategoryId || undefined,
-        size: 200,
+        size: 100,
       })
       .subscribe({
         next: page => {
@@ -104,8 +121,27 @@ export class SupervisorMap implements OnInit, AfterViewInit {
       });
   }
 
-  applyFilters(): void {
+  setStatusFilter(status: ReportStatus | ''): void {
+    this.filterStatus = this.filterStatus === status ? '' : status;
     this.loadReports();
+  }
+
+  setCategoryFilter(categoryId: string): void {
+    this.filterCategoryId = this.filterCategoryId === categoryId ? '' : categoryId;
+    this.loadReports();
+  }
+
+  statusColor(status: ReportStatus): string {
+    return STATUS_COLORS[status] ?? '#6b7280';
+  }
+
+  focusReport(report: ReportResponse): void {
+    this.selectedReportId.set(report.id);
+    const marker = this.markersByReportId.get(report.id);
+    if (marker && this.map) {
+      this.map.setView(marker.getLatLng(), Math.max(this.map.getZoom(), 15), { animate: true });
+      marker.openPopup();
+    }
   }
 
   private refreshMarkers(): void {
@@ -113,11 +149,11 @@ export class SupervisorMap implements OnInit, AfterViewInit {
 
     // On repart de zero a chaque rafraichissement : plus simple et fiable
     // que de faire un diff, vu le volume attendu (quelques centaines max).
-    this.markers.forEach(marker => marker.remove());
-    this.markers = [];
+    this.markersByReportId.forEach(marker => marker.remove());
+    this.markersByReportId.clear();
 
     for (const report of this.reports()) {
-      const color = STATUS_COLORS[report.status] ?? '#6b7280';
+      const color = this.statusColor(report.status);
       const icon = L.divIcon({
         className: 'status-marker',
         html: `<span style="background:${color}"></span>`,
@@ -134,7 +170,9 @@ export class SupervisorMap implements OnInit, AfterViewInit {
         <a href="/reports/${report.id}">Voir le détail</a>
       `);
 
-      this.markers.push(marker);
+      marker.on('click', () => this.selectedReportId.set(report.id));
+
+      this.markersByReportId.set(report.id, marker);
     }
   }
 }

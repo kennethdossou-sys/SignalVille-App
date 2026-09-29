@@ -1,14 +1,14 @@
 .agent-dashboard {
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 2rem 1.5rem;
 }
 
 .alert-error {
   background: #fdecea;
   color: #b3261e;
   padding: 0.75rem 1rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   margin-bottom: 1rem;
 }
 
@@ -18,10 +18,17 @@
 }
 
 .report-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 0.75rem;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  transition: box-shadow 0.15s;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
 
   &__header {
     display: flex;
@@ -34,15 +41,6 @@
   .reference { font-family: monospace; color: #555; }
 }
 
-.status {
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: #e3f2fd;
-  color: #1565c0;
-}
-
 .actions {
   display: flex;
   gap: 0.5rem;
@@ -50,13 +48,17 @@
 
   button {
     padding: 0.5rem 1rem;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     border: none;
     cursor: pointer;
-    background: #1976d2;
+    background: var(--color-accent);
     color: white;
+    font-weight: 500;
+    transition: background 0.15s;
 
+    &:hover:not(:disabled) { background: var(--color-accent-dark); }
     &.secondary { background: #eee; color: #333; }
+    &.secondary:hover { background: #e2e2e2; }
     &:disabled { opacity: 0.6; cursor: not-allowed; }
   }
 }
@@ -69,7 +71,7 @@
 
 .note {
   background: #f9f9f9;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 0.5rem 0.75rem;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
@@ -85,7 +87,17 @@
   align-items: flex-start;
 
   textarea { flex: 1; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
-  button { padding: 0.5rem 1rem; border-radius: 6px; border: none; background: #1976d2; color: white; cursor: pointer; }
+  button {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: var(--color-accent);
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover { background: var(--color-accent-dark); }
+  }
 }
 
 .resolve-form {
@@ -94,71 +106,25 @@
   textarea { border: 1px solid #ccc; border-radius: 4px; }
 }
 
-.top-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-
-  .brand {
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: #1e3a8a;
-    text-decoration: none;
-  }
-
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .user-name {
-    font-size: 0.9rem;
-    color: #374151;
-  }
-
-  .role-badge {
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    background: #dbeafe;
-    color: #1e3a8a;
-  }
-
-  .logout-btn {
-    background: none;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
-    cursor: pointer;
-    color: #6b7280;
-
-    &:hover {
-      background: #f3f4f6;
-    }
-  }
-}
-
 // ============ KPI (Module 3 — Séance 4) ============
 
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: 1.1rem;
+  margin-bottom: 2.25rem;
 }
 
 .kpi-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 1.25rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1.35rem 1rem;
   text-align: center;
-  background: #fafafa;
+  background: #ffffff;
+  transition: box-shadow 0.15s;
+
+  &:hover { box-shadow: var(--shadow-md); }
 
   &--warning {
     background: #fff8e1;
@@ -170,7 +136,7 @@
   display: block;
   font-size: 1.75rem;
   font-weight: 700;
-  color: #1976d2;
+  color: var(--color-navy);
 }
 
 .kpi-card--warning .kpi-value {

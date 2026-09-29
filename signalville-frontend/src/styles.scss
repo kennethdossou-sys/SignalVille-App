@@ -1,9 +1,90 @@
 :root {
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  color: #16202e;
+  color: var(--color-text);
+
+  // Palette — accent corail/orange pour les actions primaires, bleu marine
+  // pour le texte/contraste (cf. brief UI/UX Séance 5, inspiré de signalville.ca).
+  --color-accent: #f97316;
+  --color-accent-dark: #ea580c;
+  --color-accent-soft: #ffedd5;
+  --color-navy: #1e3a8a;
+  --color-navy-dark: #16213d;
+
+  --color-text: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
+
+  --color-bg: #f7f8fb;
+  --color-surface: #ffffff;
+  --color-border: #e5e7eb;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.04), 0 1px 3px rgba(17, 24, 39, 0.06);
+  --shadow-md: 0 4px 16px rgba(17, 24, 39, 0.08);
+  --shadow-lg: 0 12px 32px rgba(17, 24, 39, 0.12);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  background: #f4f6fa;
+  background: var(--color-bg);
 }
+
+h1, h2, h3 {
+  font-family: inherit;
+}
+
+// ============================================================
+// Badges de statut / priorité — vocabulaire partagé par les
+// dashboards (citoyen, agent, superviseur, admin), la liste et le
+// détail des signalements, et la carte superviseur. Définis une
+// seule fois ici pour rester cohérents partout dans l'app.
+// ============================================================
+
+.status-badge,
+.priority-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  line-height: 1.4;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    margin-right: 0.4rem;
+    opacity: 0.85;
+  }
+
+  &.small {
+    font-size: 0.66rem;
+    padding: 0.15rem 0.5rem;
+  }
+}
+
+.status-NOUVEAU { background: #dbeafe; color: #1e40af; }
+.status-AFFECTE { background: #ede9fe; color: #6d28d9; }
+.status-EN_COURS { background: #ffedd5; color: #c2410c; }
+.status-RESOLU { background: #dcfce7; color: #15803d; }
+.status-CLOTURE { background: #f3f4f6; color: #374151; }
+.status-REOUVERT { background: #fef9c3; color: #a16207; }
+.status-REJETE { background: #fee2e2; color: #b91c1c; }
+.status-ANNULE { background: #f3f4f6; color: #9ca3af; }
+
+.priority-BASSE, .priority-basse { background: #f3f4f6; color: #6b7280; }
+.priority-MOYENNE, .priority-moyenne { background: #dbeafe; color: #1e40af; }
+.priority-HAUTE, .priority-haute { background: #ffedd5; color: #c2410c; }
+.priority-CRITIQUE, .priority-critique { background: #fee2e2; color: #b91c1c; }

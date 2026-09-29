@@ -1,7 +1,10 @@
 <div class="supervisor-map-page">
   <header class="page-header">
     <div>
-      <h1>Carte des signalements</h1>
+      <div class="page-title">
+        <h1>Carte des signalements</h1>
+        <span class="live-badge">En direct</span>
+      </div>
       <a routerLink="/supervisor" class="back-link">← Retour au tableau de bord</a>
     </div>
   </header>
@@ -10,40 +13,105 @@
     <div class="alert alert-error">{{ errorMessage() }}</div>
   }
 
-  <div class="filters">
-  <select
-    [(ngModel)]="filterStatus"
-    (change)="applyFilters()"
-    aria-label="Filtrer les signalements par statut"
-  >
-    <option value="">Tous les statuts</option>
+  <div class="map-layout">
+    <aside class="sidebar">
+      <div class="filter-group">
+        <h2>Statut</h2>
+        <div class="chip-group">
+          <button
+            type="button"
+            class="chip"
+            [class.chip--active]="filterStatus === ''"
+            (click)="setStatusFilter('')"
+          >
+            Tous
+          </button>
+          @for (status of statuses; track status) {
+            <button
+              type="button"
+              class="chip"
+              [class.chip--active]="filterStatus === status"
+              (click)="setStatusFilter(status)"
+            >
+              {{ status }}
+            </button>
+          }
+        </div>
+      </div>
 
-    @for (status of statuses; track status) {
-      <option [value]="status">{{ status }}</option>
-    }
-  </select>
+      <div class="filter-group">
+        <h2>Catégorie</h2>
+        <div class="chip-group">
+          <button
+            type="button"
+            class="chip"
+            [class.chip--active]="filterCategoryId === ''"
+            (click)="setCategoryFilter('')"
+          >
+            Toutes
+          </button>
+          @for (category of categories(); track category.id) {
+            <button
+              type="button"
+              class="chip"
+              [class.chip--active]="filterCategoryId === category.id"
+              (click)="setCategoryFilter(category.id)"
+            >
+              {{ category.name }}
+            </button>
+          }
+        </div>
+      </div>
 
-  <select
-    [(ngModel)]="filterCategoryId"
-    (change)="applyFilters()"
-    aria-label="Filtrer les signalements par catégorie"
-  >
-    <option value="">Toutes les catégories</option>
+      <div class="legend">
+        <h2>Légende</h2>
+        <ul>
+          @for (item of legendItems; track item.status) {
+            <li>
+              <span class="dot" [style.background]="item.color"></span>
+              {{ item.label }}
+            </li>
+          }
+        </ul>
+      </div>
 
-    @for (category of categories(); track category.id) {
-      <option [value]="category.id">{{ category.name }}</option>
-    }
-  </select>
+      <div class="report-list-panel">
+        <div class="report-list-header">
+          <h2>Signalements</h2>
+          @if (!loading()) {
+            <span class="count">{{ reports().length }}</span>
+          }
+        </div>
 
-    @if (!loading()) {
-      <span class="count">{{ reports().length }} signalement(s) affiché(s)</span>
-    }
-  </div>
+        @if (loading()) {
+          <p class="list-state">Chargement…</p>
+        } @else if (reports().length === 0) {
+          <p class="list-state">Aucun signalement pour ces filtres.</p>
+        } @else {
+          <ul class="report-mini-list">
+            @for (report of reports(); track report.id) {
+              <li
+                class="report-mini-item"
+                [class.report-mini-item--active]="selectedReportId() === report.id"
+                (click)="focusReport(report)"
+              >
+                <span class="dot" [style.background]="statusColor(report.status)"></span>
+                <div class="report-mini-main">
+                  <span class="ref">{{ report.reference }}</span>
+                  <span class="title">{{ report.title }}</span>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </aside>
 
-  <div class="map-wrapper">
-    @if (loading()) {
-      <div class="map-loading">Chargement des signalements…</div>
-    }
-    <div #mapContainer class="map-container"></div>
+    <div class="map-wrapper">
+      @if (loading()) {
+        <div class="map-loading">Chargement des signalements…</div>
+      }
+      <div #mapContainer class="map-container"></div>
+    </div>
   </div>
 </div>

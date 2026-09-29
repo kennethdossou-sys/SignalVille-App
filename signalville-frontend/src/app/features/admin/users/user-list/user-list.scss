@@ -1,7 +1,7 @@
 .user-list {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2.5rem 2rem;
 }
 
 .page-header {
@@ -16,16 +16,19 @@
 }
 
 .cta-btn {
-  background: #1976d2;
+  background: var(--color-accent);
   color: white;
   text-decoration: none;
   padding: 0.6rem 1.2rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, box-shadow 0.15s;
 
   &:hover {
-    background: #125aa0;
+    background: var(--color-accent-dark);
+    box-shadow: var(--shadow-md);
   }
 }
 
@@ -38,8 +41,8 @@
   select,
   input {
     padding: 0.5rem 0.75rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    border-radius: var(--radius-sm);
     font-size: 0.85rem;
   }
 
@@ -50,11 +53,16 @@
 
   button {
     padding: 0.5rem 1rem;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     border: none;
     cursor: pointer;
-    background: #1976d2;
+    background: var(--color-navy);
     color: white;
+    font-weight: 500;
+
+    &:hover {
+      background: #16307a;
+    }
   }
 }
 
@@ -62,7 +70,7 @@
   background: #fdecea;
   color: #b3261e;
   padding: 0.75rem 1rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   margin-bottom: 1rem;
 }
 
@@ -75,43 +83,50 @@
   width: 100%;
   border-collapse: collapse;
   background: white;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   overflow: hidden;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
 
   th, td {
     text-align: left;
-    padding: 0.75rem 1rem;
+    padding: 0.85rem 1.1rem;
   }
 
   thead {
-    background: #f5f5f5;
+    background: #f9fafb;
 
     th {
-      font-size: 0.8rem;
-      color: #666;
+      font-size: 0.75rem;
+      color: #6b7280;
       text-transform: uppercase;
+      letter-spacing: 0.03em;
     }
   }
 
   tbody tr:not(.status-form-row) {
-    border-top: 1px solid #eee;
+    border-top: 1px solid #f3f4f6;
+    transition: background 0.1s;
+
+    &:hover {
+      background: #fafbfc;
+    }
   }
 }
 
 .role-badge {
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
   font-weight: 600;
   background: #e3f2fd;
   color: #1565c0;
 }
 
 .status-badge {
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
   font-weight: 600;
 
   &--actif {
@@ -135,17 +150,27 @@
   gap: 0.5rem;
 
   button {
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
+    padding: 0.4rem 0.85rem;
+    border-radius: var(--radius-sm);
     border: none;
     cursor: pointer;
-    background: #1976d2;
+    background: var(--color-accent);
     color: white;
     font-size: 0.85rem;
+    font-weight: 500;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) {
+      background: var(--color-accent-dark);
+    }
 
     &.secondary {
       background: #eee;
       color: #333;
+    }
+
+    &.secondary:hover {
+      background: #e2e2e2;
     }
 
     &:disabled {
@@ -190,15 +215,24 @@
 
     button {
       padding: 0.5rem 1rem;
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       border: none;
       cursor: pointer;
-      background: #1976d2;
+      background: var(--color-accent);
       color: white;
+      font-weight: 500;
+
+      &:hover {
+        background: var(--color-accent-dark);
+      }
 
       &.secondary {
         background: #eee;
         color: #333;
+      }
+
+      &.secondary:hover {
+        background: #e2e2e2;
       }
     }
   }
@@ -215,10 +249,14 @@
 
   button {
     padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+    border-radius: var(--radius-sm);
+    border: 1px solid #d1d5db;
     background: white;
     cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: #f3f4f6;
+    }
 
     &:disabled {
       opacity: 0.4;

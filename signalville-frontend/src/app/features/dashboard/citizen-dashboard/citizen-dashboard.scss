@@ -1,6 +1,6 @@
 .dashboard-page {
   min-height: 100vh;
-  background: #f8fafc;
+  background: var(--color-bg);
 }
 
 .top-nav {
@@ -54,16 +54,16 @@
 }
 
 .content {
-  max-width: 1000px;
+  max-width: 1040px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2.5rem 2rem;
 }
 
 .header-row {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 2rem;
+  margin-bottom: 2.25rem;
 
   h1 {
     color: #111827;
@@ -78,17 +78,20 @@
 }
 
 .cta-btn {
-  background: #f97316;
+  background: var(--color-accent);
   color: #ffffff;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 0.7rem 1.2rem;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, box-shadow 0.15s;
 
   &:hover {
-    background: #ea580c;
+    background: var(--color-accent-dark);
+    box-shadow: var(--shadow-md);
   }
 }
 
@@ -106,18 +109,24 @@
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  margin-bottom: 2.5rem;
+  gap: 1.1rem;
+  margin-bottom: 2.75rem;
 }
 
 .kpi-card {
   background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1.35rem;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  transition: box-shadow 0.15s;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
 
   .kpi-label {
     font-size: 0.8rem;
@@ -172,9 +181,10 @@
   margin: 0;
   padding: 0;
   background: #ffffff;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   overflow: hidden;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
 
 .report-item {
@@ -223,19 +233,69 @@
   }
 }
 
-.status-badge {
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 0.25rem 0.6rem;
-  border-radius: 999px;
-  white-space: nowrap;
+// Couleurs des status-badge : définies globalement dans styles.scss
+// pour rester cohérentes avec la liste, le détail et la carte.
+
+// ============================================================
+// Bloc pédagogique "Comment signaler" (Priorité 3 du brief UI/UX)
+// ============================================================
+
+.how-it-works {
+  margin-top: 2.75rem;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-sm);
+
+  h2 {
+    font-size: 1.05rem;
+    color: #111827;
+    margin: 0 0 1.25rem;
+  }
 }
 
-.status-NOUVEAU { background: #dbeafe; color: #1e40af; }
-.status-AFFECTE { background: #ede9fe; color: #6d28d9; }
-.status-EN_COURS { background: #ffedd5; color: #c2410c; }
-.status-RESOLU { background: #dcfce7; color: #15803d; }
-.status-CLOTURE { background: #f3f4f6; color: #374151; }
-.status-REOUVERT { background: #fef9c3; color: #a16207; }
-.status-REJETE { background: #fee2e2; color: #b91c1c; }
-.status-ANNULE { background: #f3f4f6; color: #9ca3af; }
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-dark);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.step-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.step-text {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.45;
+}
+
+@media (max-width: 720px) {
+  .steps {
+    grid-template-columns: 1fr;
+  }
+}

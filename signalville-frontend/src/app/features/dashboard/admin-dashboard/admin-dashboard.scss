@@ -1,92 +1,46 @@
 .admin-dashboard {
   min-height: 100vh;
-  background: #f8fafc;
-}
-
-.top-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-
-  .brand {
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: #1e3a8a;
-    text-decoration: none;
-  }
-
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .user-name {
-    font-size: 0.9rem;
-    color: #374151;
-  }
-
-  .role-badge {
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    background: #dbeafe;
-    color: #1e3a8a;
-  }
-
-  .logout-btn {
-    background: none;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
-    cursor: pointer;
-    color: #6b7280;
-
-    &:hover {
-      background: #f3f4f6;
-    }
-  }
+  background: var(--color-bg);
 }
 
 .content {
-  max-width: 1000px;
+  max-width: 1040px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2.5rem 2rem;
 }
 
 .alert-error {
   background: #fdecea;
   color: #b3261e;
   padding: 0.75rem 1rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   margin-bottom: 1rem;
 }
 
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: 1.1rem;
+  margin-bottom: 2.25rem;
 }
 
 .kpi-card {
   background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1.35rem;
   text-align: center;
+  transition: box-shadow 0.15s;
+
+  &:hover { box-shadow: var(--shadow-md); }
 }
 
 .kpi-value {
   display: block;
   font-size: 1.75rem;
   font-weight: 700;
-  color: #1976d2;
+  color: var(--color-navy);
 }
 
 .kpi-label {
@@ -98,9 +52,10 @@
 
 .panel {
   background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1.35rem;
   margin-bottom: 1.5rem;
 
   h2 {
@@ -129,7 +84,7 @@
 
   .count {
     font-weight: 600;
-    color: #1976d2;
+    color: var(--color-navy);
   }
 }
 
@@ -139,15 +94,18 @@
 }
 
 .quick-link {
-  background: #1976d2;
+  background: var(--color-accent);
   color: white;
   text-decoration: none;
   padding: 0.75rem 1.25rem;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, box-shadow 0.15s;
 
   &:hover {
-    background: #125aa0;
+    background: var(--color-accent-dark);
+    box-shadow: var(--shadow-md);
   }
 }
