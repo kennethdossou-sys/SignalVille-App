@@ -3,3 +3,7 @@
 <router-outlet />
 
 <app-footer />
+
+@if (loadingService.isLoading()) {
+  <app-loader mode="fullscreen" />
+}

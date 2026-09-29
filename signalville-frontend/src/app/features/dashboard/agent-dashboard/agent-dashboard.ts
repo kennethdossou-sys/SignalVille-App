@@ -6,11 +6,12 @@ import { DecimalPipe } from '@angular/common';
 import { Interventions } from '../../../core/services/interventions';
 import { Dashboards } from '../../../core/services/dashboard';
 import { AgentDashboardResponse, ReportResponse, NoteResponse } from '../../../shared/models/api.models';
+import { Loader } from '../../../shared/components/loader/loader';
 
 @Component({
   selector: 'app-agent-dashboard',
   standalone: true,
-  imports: [FormsModule, RouterLink, DecimalPipe],
+  imports: [FormsModule, RouterLink, DecimalPipe, Loader],
   templateUrl: './agent-dashboard.html',
   styleUrl: './agent-dashboard.scss',
 })

@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Loader } from '../../../shared/components/loader/loader';
 
 import { Interventions } from '../../../core/services/interventions';
 import { Dashboards } from '../../../core/services/dashboard';
@@ -13,7 +14,7 @@ import {
 @Component({
   selector: 'app-supervisor-dashboard',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, Loader],
   templateUrl: './supervisor-dashboard.html',
   styleUrl: './supervisor-dashboard.scss',
 })

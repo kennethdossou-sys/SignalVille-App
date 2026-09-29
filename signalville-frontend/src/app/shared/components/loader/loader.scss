@@ -1,0 +1,91 @@
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 2rem;
+
+  &--fullscreen {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    padding: 3rem;
+    gap: 2rem;
+  }
+
+  &__brand {
+    font-size: 5rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--color-primary-dark, #1e3a8a);
+    line-height: 1;
+
+    // Signature discrete : petite pulsation
+    animation: loader-brand-pulse 1.8s ease-in-out infinite;
+  }
+
+  &__bar {
+    display: flex;
+    gap: 6px;
+    padding: 4px;
+    border-radius: 6px;
+    background: transparent;
+    border: 2px solid #111827;
+
+    // Taille par defaut (mode inline)
+    width: 180px;
+    height: 24px;
+  }
+
+  &--fullscreen &__bar {
+    width: 280px;
+    height: 32px;
+    gap: 8px;
+    padding: 5px;
+  }
+
+  &__segment {
+    flex: 1;
+    background: var(--color-primary, #f97316);
+    border-radius: 2px;
+    opacity: 0;
+    animation: loader-fill 1.2s ease-in-out infinite;
+  }
+
+  &__label {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+
+  &--fullscreen &__label {
+    font-size: 1rem;
+    color: #4b5563;
+  }
+}
+
+@keyframes loader-fill {
+  0%, 100% {
+    opacity: 0;
+    transform: scaleY(0.6);
+  }
+  40%, 70% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes loader-brand-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(0.98);
+  }
+}

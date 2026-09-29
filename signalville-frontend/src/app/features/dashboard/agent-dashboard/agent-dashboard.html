@@ -4,8 +4,8 @@
   }
 
   @if (loading()) {
-    <p>Chargement…</p>
-  } @else {
+  <app-loader label="Chargement..." />
+} @else {
 
     @if (dashboard(); as stats) {
       <section class="kpi-grid">
@@ -35,7 +35,7 @@
         <div class="report-card">
           <div class="report-card__header">
             <span class="reference">{{ report.reference }}</span>
-            <span class="status status--{{ report.status.toLowerCase() }}">{{ report.status }}</span>
+            <span class="status-badge" [class]="'status-' + report.status">{{ report.status }}</span>
           </div>
           <h3>{{ report.title }}</h3>
           <p class="category">{{ report.category.name }} — {{ report.address }}</p>

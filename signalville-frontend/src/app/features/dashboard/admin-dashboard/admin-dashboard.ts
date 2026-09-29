@@ -4,11 +4,12 @@ import { KeyValuePipe } from '@angular/common';
 
 import { Dashboards } from '../../../core/services/dashboard';
 import { AdminDashboardResponse } from '../../../shared/models/api.models';
+import { Loader } from '../../../shared/components/loader/loader';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [RouterLink, KeyValuePipe],
+  imports: [RouterLink, KeyValuePipe, Loader],
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.scss',
 })

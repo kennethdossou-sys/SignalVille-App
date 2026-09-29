@@ -1,5 +1,6 @@
-import { Component, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Component, ElementRef, HostListener, inject, signal } from '@angular/core';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 import { AuthService } from '../../../core/auth/auth';
 import { Role } from '../../models/api.models';
@@ -14,14 +15,18 @@ import { Role } from '../../models/api.models';
 export class Header {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly elementRef = inject(ElementRef);
 
   readonly currentUser = this.authService.currentUser;
+  readonly isMenuOpen = signal(false);
 
-  /**
-   * Destination du lien "SignalVille" selon le role connecte. Meme mapping
-   * que login.landingRouteFor(). Retourne '/login' si personne n'est
-   * connecte (bandeau visible sur les pages publiques aussi).
-   */
+  constructor() {
+    // Ferme le menu automatiquement lors d'une navigation reussie.
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => this.isMenuOpen.set(false));
+  }
+
   get brandLink(): string {
     const user = this.currentUser();
     if (!user) return '/login';
@@ -38,7 +43,13 @@ export class Header {
     }
   }
 
+  toggleMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    this.isMenuOpen.update((open) => !open);
+  }
+
   logout(): void {
+    this.isMenuOpen.set(false);
     this.authService.logout().subscribe({
       next: () => this.router.navigate(['/login']),
       error: () => {
@@ -46,5 +57,23 @@ export class Header {
         this.router.navigate(['/login']);
       },
     });
+  }
+
+  // Ferme le menu si on clique en dehors du header (delegue au document).
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.isMenuOpen()) return;
+    const target = event.target as Node;
+    if (!this.elementRef.nativeElement.contains(target)) {
+      this.isMenuOpen.set(false);
+    }
+  }
+
+  // Ferme le menu avec Escape (accessibilite clavier).
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.isMenuOpen()) {
+      this.isMenuOpen.set(false);
+    }
   }
 }
