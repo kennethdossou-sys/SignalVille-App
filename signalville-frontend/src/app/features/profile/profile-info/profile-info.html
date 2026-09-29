@@ -1,0 +1,72 @@
+<div class="profile-page">
+  <app-back-button />
+
+  <h1 class="page-title">Mon profil</h1>
+
+  <section class="card">
+    <header class="card-header">
+      <svg class="card-header__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <h2>Mes informations</h2>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="field">
+        <label for="firstName">Prenom</label>
+        <input id="firstName" type="text" formControlName="firstName" />
+      </div>
+
+      <div class="field">
+        <label for="lastName">Nom</label>
+        <input id="lastName" type="text" formControlName="lastName" />
+      </div>
+
+      <div class="field field--readonly">
+        <label>Adresse e-mail</label>
+        <div class="readonly-value">
+          <span>{{ currentUser()?.email }}</span>
+          <svg class="readonly-value__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" title="Non modifiable">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <small>Non modifiable. Contactez un administrateur si necessaire.</small>
+      </div>
+
+      <div class="field">
+        <label for="phone">Telephone</label>
+        <input id="phone" type="tel" formControlName="phone" />
+      </div>
+
+      @if (successMessage()) {
+        <p class="alert alert-success">{{ successMessage() }}</p>
+      }
+      @if (errorMessage()) {
+        <p class="alert alert-error">{{ errorMessage() }}</p>
+      }
+
+      <div class="actions">
+        <button type="submit" class="btn btn-primary" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card">
+    <header class="card-header">
+      <svg class="card-header__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      <h2>Securite</h2>
+    </header>
+
+    <p class="section-lead">Vous pouvez changer votre mot de passe a tout moment pour securiser votre compte.</p>
+    <button type="button" class="btn btn-secondary" (click)="goToChangePassword()">
+      Changer mon mot de passe
+    </button>
+  </section>
+</div>

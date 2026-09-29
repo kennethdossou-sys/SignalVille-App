@@ -58,6 +58,7 @@ export interface UserResponse {
   status: AccountStatus;
   createdAt: string;
   lastLoginAt: string | null;
+  mustChangePassword: boolean;
 }
 
 export interface UpdateProfileRequest {
@@ -329,4 +330,20 @@ export interface ErrorResponse {
   message: string;
   path: string;
   validationErrors?: Record<string, string>;
+}
+
+
+// ============================================
+// PROFILE
+// ============================================
+export interface UpdateProfileRequest {
+  firstName: string;
+  lastName: string;
+  phone: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
 }

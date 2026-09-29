@@ -2,6 +2,7 @@ package africa.epf.signalville_backend.api.controller;
 
 import africa.epf.signalville_backend.api.dto.request.AdminUpdateUserRequest;
 import africa.epf.signalville_backend.api.dto.request.CreateInternalUserRequest;
+import africa.epf.signalville_backend.api.dto.request.UpdateProfileRequest;
 import africa.epf.signalville_backend.api.dto.request.UpdateUserStatusRequest;
 import africa.epf.signalville_backend.api.dto.response.CreateInternalUserResponse;
 import africa.epf.signalville_backend.api.dto.response.UserPage;
@@ -32,6 +33,17 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserResponse> me(@AuthenticationPrincipal AppUserPrincipal principal) {
         return ResponseEntity.ok(userService.getById(principal.id()));
+    }
+
+    /**
+     * Self-service : un utilisateur connecte modifie son propre profil
+     * (prenom, nom, telephone). Ni role, ni statut, ni email ne transitent
+     * par cet endpoint - voir UpdateProfileRequest.
+     */
+    @PatchMapping("/me")
+    public ResponseEntity<UserResponse> updateMe(@AuthenticationPrincipal AppUserPrincipal principal,
+                                                  @Valid @RequestBody UpdateProfileRequest request) {
+        return ResponseEntity.ok(userService.updateProfile(principal.id(), request));
     }
 
     @GetMapping

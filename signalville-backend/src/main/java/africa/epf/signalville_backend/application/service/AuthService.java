@@ -1,11 +1,12 @@
 package africa.epf.signalville_backend.application.service;
 
+import java.util.UUID;
+
+import africa.epf.signalville_backend.api.dto.request.ChangePasswordRequest;
 import africa.epf.signalville_backend.api.dto.request.LoginRequest;
 import africa.epf.signalville_backend.api.dto.request.RegisterRequest;
 import africa.epf.signalville_backend.api.dto.response.AuthResponse;
 import africa.epf.signalville_backend.domain.model.User;
-
-import java.util.UUID;
 
 /**
  * Contrat d'authentification (strategie JWT B : access token JWT courte
@@ -25,4 +26,14 @@ public interface AuthService {
     void logout(String presentedToken);
 
     User requireUserById(UUID id);
+
+
+    /**
+     * Changement de mot de passe volontaire (utilisateur authentifie).
+     * Verifie le mot de passe actuel, controle la coherence
+     * newPassword/confirmNewPassword, encode le nouveau et remet
+     * mustChangePassword a false s'il etait a true (compte interne cree
+     * avec un mot de passe temporaire).
+     */
+    void changePassword(UUID userId, ChangePasswordRequest request);
 }

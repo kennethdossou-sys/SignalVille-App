@@ -1,14 +1,18 @@
 package africa.epf.signalville_backend.api.controller;
 
+import africa.epf.signalville_backend.api.dto.request.ChangePasswordRequest;
 import africa.epf.signalville_backend.api.dto.request.LoginRequest;
 import africa.epf.signalville_backend.api.dto.request.RefreshTokenRequest;
 import africa.epf.signalville_backend.api.dto.request.RegisterRequest;
 import africa.epf.signalville_backend.api.dto.response.AuthResponse;
 import africa.epf.signalville_backend.application.service.AuthService;
+import africa.epf.signalville_backend.infrastructure.security.AppUserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,6 +47,19 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest request) {
         authService.logout(request.refreshToken());
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Authentifie : change son propre mot de passe. Demande le mot de passe
+     * actuel (empeche qu'une session volee suffise) et invalide
+     * mustChangePassword si le compte etait en attente d'un premier
+     * changement (mot de passe temporaire cree par un admin).
+     */
+    @PatchMapping("/password")
+    public ResponseEntity<Void> changePassword(@AuthenticationPrincipal AppUserPrincipal principal,
+                                                @Valid @RequestBody ChangePasswordRequest request) {
+        authService.changePassword(principal.id(), request);
         return ResponseEntity.noContent().build();
     }
 }

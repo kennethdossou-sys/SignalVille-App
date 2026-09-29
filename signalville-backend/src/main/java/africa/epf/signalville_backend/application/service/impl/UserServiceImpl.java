@@ -7,12 +7,14 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import africa.epf.signalville_backend.api.dto.request.AdminUpdateUserRequest;
 import africa.epf.signalville_backend.api.dto.request.CreateInternalUserRequest;
+import africa.epf.signalville_backend.api.dto.request.UpdateProfileRequest;
 import africa.epf.signalville_backend.api.dto.response.AvailableAgentResponse;
 import africa.epf.signalville_backend.api.dto.response.CreateInternalUserResponse;
 import africa.epf.signalville_backend.api.dto.response.UserPage;
@@ -165,5 +167,18 @@ public class UserServiceImpl implements UserService {
             sb.append(PASSWORD_CHARS.charAt(RANDOM.nextInt(PASSWORD_CHARS.length())));
         }
         return sb.toString();
+    }
+
+    @Override
+    @Transactional
+    public UserResponse updateProfile(UUID userId, UpdateProfileRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable : " + userId));
+
+        user.setFirstName(request.firstName().trim());
+        user.setLastName(request.lastName().trim());
+        user.setPhone(request.phone().trim());
+
+        return UserMapper.toResponse(userRepository.save(user));
     }
 }

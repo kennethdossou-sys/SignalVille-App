@@ -83,4 +83,14 @@ export const routes: Routes = [
   loadComponent: () => import('./features/dashboard/supervisor-map/supervisor-map').then(m => m.SupervisorMap),
   canActivate: [authGuard],
 },
+{
+    path: 'profile',
+    loadComponent: () => import('./features/profile/profile-info/profile-info').then(m => m.ProfileInfo),
+    canActivate: [authGuard],
+},
+{
+   path: 'profile/change-password',
+    loadComponent: () => import('./features/profile/change-password/change-password').then(m => m.ChangePassword),
+    canActivate: [authGuard],
+},
 ];

@@ -1,7 +1,22 @@
 package africa.epf.signalville_backend.application.service.impl;
 
+import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.UUID;
+
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import africa.epf.signalville_backend.api.dto.request.LoginRequest;
 import africa.epf.signalville_backend.api.dto.request.RegisterRequest;
+import africa.epf.signalville_backend.api.dto.request.ChangePasswordRequest;
+import africa.epf.signalville_backend.domain.exception.BusinessRuleException;
 import africa.epf.signalville_backend.api.dto.response.AuthResponse;
 import africa.epf.signalville_backend.application.mapper.UserMapper;
 import africa.epf.signalville_backend.application.service.AuthService;
@@ -15,18 +30,6 @@ import africa.epf.signalville_backend.infrastructure.persistence.UserRepository;
 import africa.epf.signalville_backend.infrastructure.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.security.SecureRandom;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -144,4 +147,36 @@ public class AuthServiceImpl implements AuthService {
         secureRandom.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
+
+    @Override
+    @Transactional
+    public void changePassword(UUID userId, ChangePasswordRequest request) {
+        if (!request.newPassword().equals(request.confirmNewPassword())) {
+            throw new BusinessRuleException("La confirmation ne correspond pas au nouveau mot de passe");
+        }
+        if (request.newPassword().equals(request.currentPassword())) {
+            throw new BusinessRuleException("Le nouveau mot de passe doit etre different de l'actuel");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable : " + userId));
+
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
+            throw new BadCredentialsException("Mot de passe actuel invalide");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        if (user.isMustChangePassword()) {
+            user.setMustChangePassword(false);
+        }
+        userRepository.save(user);
+
+        // Toutes les sessions actives sont revoquees : un mot de passe change
+        // doit invalider les refresh tokens deja emis, sinon un token vole
+        // resterait valide malgre le changement.
+        refreshTokenRepository.revokeAllForUser(user.getId(), Instant.now());
+
+        log.info("Mot de passe change pour l'utilisateur {}", user.getEmail());
+    }
+    
 }

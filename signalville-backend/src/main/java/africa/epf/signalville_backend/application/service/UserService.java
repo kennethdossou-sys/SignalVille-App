@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 import africa.epf.signalville_backend.api.dto.request.AdminUpdateUserRequest;
 import africa.epf.signalville_backend.api.dto.request.CreateInternalUserRequest;
+import africa.epf.signalville_backend.api.dto.request.UpdateProfileRequest;
 import africa.epf.signalville_backend.api.dto.response.AvailableAgentResponse;
 import africa.epf.signalville_backend.api.dto.response.CreateInternalUserResponse;
 import africa.epf.signalville_backend.api.dto.response.UserPage;
@@ -39,4 +40,11 @@ public interface UserService {
 
     /** PATCH /users/{userId}/status. Seul point d'entree pour changer le statut d'un compte. */
     UserResponse updateStatus(UUID userId, AccountStatus status, String reason);
+
+    /**
+     * Self-service : l'utilisateur connecte met a jour son propre profil
+     * (prenom, nom, telephone). Ni role, ni statut, ni email ne transitent
+     * par cette methode - voir UpdateProfileRequest.
+     */
+    UserResponse updateProfile(UUID userId, UpdateProfileRequest request);
 }
