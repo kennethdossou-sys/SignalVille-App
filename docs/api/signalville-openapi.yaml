@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: API SignalVille
-  version: 1.0.0
+  version: 1.1.0
   description: >
     API REST de la plateforme SignalVille, destinée à la gestion des incidents urbains,
     des utilisateurs, des interventions, des notifications et des statistiques.
@@ -287,24 +287,37 @@ paths:
                 $ref: '#/components/schemas/UserResponse'
 
   /agents/available:
-    get:
-      tags: [Agents]
-      summary: Lister les agents actifs disponibles pour affectation
-      description: >
-        Réservé au superviseur. Vue restreinte (pas de données de gestion de
-        compte) incluant la charge courante de chaque agent, pour permettre
-        une affectation équilibrée plutôt qu'à l'aveugle.
-      responses:
-        '200':
-          description: Liste des agents actifs avec leur charge courante
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AvailableAgentResponse'
-        '403':
-          $ref: '#/components/responses/Forbidden'
+  get:
+    tags: [Agents]
+    summary: Lister les agents actifs disponibles pour affectation
+    description: >
+      Réservé au superviseur. Vue restreinte (pas de données de gestion de
+      compte) incluant la charge courante de chaque agent, pour permettre
+      une affectation équilibrée plutôt qu'à l'aveugle.
+    parameters:
+      - name: reportId
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+        description: >
+          Si fourni et que le signalement désigné est au statut REOUVERT,
+          l'agent de la dernière intervention est exclu du résultat : un
+          dossier rouvert ne peut pas être réaffecté au même agent (règle
+          métier actée en Séance 4). Sans effet si le signalement n'est pas
+          REOUVERT, ou si le paramètre est omis.
+    responses:
+      '200':
+        description: Liste des agents actifs avec leur charge courante
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/AvailableAgentResponse'
+      '403':
+        $ref: '#/components/responses/Forbidden'
 
   /categories:
     get:
@@ -338,7 +351,46 @@ paths:
               schema:
                 $ref: '#/components/schemas/CategoryResponse'
 
+  /categories/all:
+    get:
+      tags: [Catégories]
+      summary: Lister toutes les catégories, actives et inactives
+      description: >
+        Réservé aux administrateurs. Contrairement à GET /categories (public,
+        actives uniquement), cette route expose l'intégralité du catalogue —
+        nécessaire pour retrouver et réactiver une catégorie désactivée par
+        erreur.
+      responses:
+        '200':
+          description: Liste complète des catégories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   /categories/{categoryId}:
+    get:
+      tags: [Catégories]
+      summary: Consulter une catégorie
+      description: >
+        Réservé aux administrateurs. Retourne la catégorie quel que soit son
+        statut (active ou inactive), contrairement à GET /categories qui ne
+        liste que les actives.
+      parameters:
+        - $ref: '#/components/parameters/CategoryId'
+      responses:
+        '200':
+          description: Catégorie trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
     put:
       tags: [Catégories]
       summary: Modifier une catégorie
@@ -377,7 +429,6 @@ paths:
       responses:
         '204':
           description: Statut modifié
-
   /reports:
     post:
       tags: [Signalements]
@@ -675,27 +726,31 @@ paths:
                 items:
                   $ref: '#/components/schemas/HistoryResponse'
 
-    /photos/{photoId}:
-      get:
-        tags: [Signalements]
-        summary: Télécharger le binaire d'une photo de signalement
-        parameters:
-          - name: photoId
-            in: path
-            required: true
-            schema:
-              type: string
-              format: uuid
-        responses:
-          '200':
-            description: Fichier binaire de la photo    (image)
-            content:
-              image/*:
-                schema:
-                  type: string
-                  format: binary
-          '404':
-            $ref: '#/components/responses/NotFound'
+  /photos/{photoId}:
+    get:
+      tags: [Signalements]
+      summary: Télécharger le binaire d'une photo de signalement
+      description: >
+        Photo attachée à un signalement (preuve initiale du citoyen).
+        Distinct des preuves de résolution, servies par
+        /interventions/{interventionId}/proofs/{proofId}.
+      parameters:
+        - name: photoId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Fichier binaire de la photo (image)
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /reports/{reportId}/notes:
     get:
@@ -826,7 +881,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DashboardResponse'
+                $ref: '#/components/schemas/CitizenDashboardResponse'
 
   /dashboard/agent:
     get:
@@ -838,7 +893,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DashboardResponse'
+                $ref: '#/components/schemas/AgentDashboardResponse'
 
   /dashboard/supervisor:
     get:
@@ -850,7 +905,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DashboardResponse'
+                $ref: '#/components/schemas/SupervisorDashboardResponse'
 
   /dashboard/admin:
     get:
@@ -862,7 +917,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DashboardResponse'
+                $ref: '#/components/schemas/AdminDashboardResponse'
 
   /statistics/general:
     get:
@@ -895,6 +950,32 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/AgentStatisticsResponse'
+
+  /statistics/timeline:
+    get:
+      tags: [Statistiques]
+      summary: Évolution des signalements dans le temps
+      description: >
+        Série temporelle destinée aux courbes des tableaux de bord :
+        nombre de signalements créés et résolus par unité de temps.
+      parameters:
+        - $ref: '#/components/parameters/DateFrom'
+        - $ref: '#/components/parameters/DateTo'
+        - name: granularity
+          in: query
+          schema:
+            type: string
+            enum: [DAY, WEEK, MONTH]
+            default: DAY
+      responses:
+        '200':
+          description: Points de la série temporelle, ordonnés chronologiquement
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimelinePointResponse'
 
   /audit:
     get:
@@ -1485,10 +1566,169 @@ components:
         totalPages:
           type: integer
 
-    DashboardResponse:
+    # -------------------------------------------------------------------
+    # Tableaux de bord
+    #
+    # Un schema typé par rôle, au lieu d'un Map<String, Number> générique.
+    # Motif : les écrans superviseur et agent doivent afficher des LISTES
+    # de signalements actionnables (à vérifier, critiques, en cours), pas
+    # seulement des compteurs. Un dictionnaire de nombres ne peut pas les
+    # porter, et le front perdrait tout typage TypeScript.
+    #
+    # Chaque dashboard expose des compteurs + les listes courtes dont son
+    # écran a réellement besoin, afin d'éviter un appel réseau par bloc.
+    # -------------------------------------------------------------------
+
+    CitizenDashboardResponse:
       type: object
-      additionalProperties:
-        type: number
+      description: Indicateurs de l'espace citoyen, limités à ses propres signalements.
+      properties:
+        totalReports:
+          type: integer
+          description: Nombre total de signalements créés par le citoyen.
+        byStatus:
+          type: object
+          description: Répartition de ses signalements par statut.
+          additionalProperties:
+            type: integer
+        openReports:
+          type: integer
+          description: Signalements non encore clôturés (suivi en cours).
+        resolvedReports:
+          type: integer
+        unreadNotifications:
+          type: integer
+        recentReports:
+          type: array
+          description: Derniers signalements du citoyen, pour accès direct.
+          items:
+            $ref: '#/components/schemas/ReportResponse'
+
+    AgentDashboardResponse:
+      type: object
+      description: Indicateurs de l'espace agent, limités aux interventions qui lui sont affectées.
+      properties:
+        assignedCount:
+          type: integer
+          description: Interventions au statut AFFECTEE, en attente de démarrage.
+        inProgressCount:
+          type: integer
+          description: Interventions au statut EN_COURS.
+        resolvedCount:
+          type: integer
+          description: Interventions résolues par l'agent (cumul).
+        averageProcessingHours:
+          type: number
+          description: Délai moyen entre démarrage et résolution, en heures.
+        unreadNotifications:
+          type: integer
+        currentInterventions:
+          type: array
+          description: Dossiers actifs de l'agent, pour action immédiate.
+          items:
+            $ref: '#/components/schemas/ReportResponse'
+
+    SupervisorDashboardResponse:
+      type: object
+      description: Indicateurs de pilotage du superviseur, sur l'ensemble des signalements.
+      properties:
+        unassignedCount:
+          type: integer
+          description: >
+            Signalements à affecter : statut NOUVEAU ou REOUVERT. Un signalement
+            REOUVERT compte ici ET dans reopenedCount — deux angles de lecture
+            du même sous-ensemble (« à affecter » / « provient d'une reprise ratée »).
+        reopenedCount:
+          type: integer
+          description: >
+            Signalements au statut REOUVERT uniquement. Sous-ensemble de
+            unassignedCount, affiché séparément comme signal d'alerte : une
+            réouverture indique une résolution précédente jugée insuffisante.
+        last24HoursCount:
+          type: integer
+          description: >
+            Signalements créés dans les dernières 24h, tous statuts confondus.
+            Indicateur de flux entrant, distinct du stock à affecter.
+        inProgressCount:
+          type: integer
+          description: Signalements aux statuts AFFECTE ou EN_COURS.
+        toVerifyCount:
+          type: integer
+          description: Signalements RESOLU en attente de vérification et clôture.
+        closedCount:
+          type: integer
+        criticalCount:
+          type: integer
+          description: >
+            Signalements dont la priorité effective (Report.priority) est
+            CRITIQUE, hors états terminaux (CLOTURE, REJETE, ANNULE).
+        byStatus:
+          type: object
+          additionalProperties:
+            type: integer
+        byCategory:
+          type: object
+          additionalProperties:
+            type: integer
+        byDistrict:
+          type: object
+          description: Répartition par quartier (exigence du sujet officiel).
+          additionalProperties:
+            type: integer
+        reportsToVerify:
+          type: array
+          description: Liste courte des résolutions en attente de vérification.
+          items:
+            $ref: '#/components/schemas/ReportResponse'
+        criticalReports:
+          type: array
+          description: Liste courte des incidents critiques actifs.
+          items:
+            $ref: '#/components/schemas/ReportResponse'
+        reopenedReports:
+          type: array
+          description: Liste courte des signalements réouverts, en attente de réaffectation.
+          items:
+            $ref: '#/components/schemas/ReportResponse'
+        assignedReports:
+          type: array
+          description: >
+            Liste courte des signalements NOUVEAU ou REOUVERT en attente
+            d'affectation. Complète unassignedCount avec le détail nécessaire
+            à l'action d'affectation côté superviseur.
+          items:
+            $ref: '#/components/schemas/ReportResponse'
+    AdminDashboardResponse:
+      type: object
+      description: Indicateurs d'administration de la plateforme.
+      properties:
+        totalUsers:
+          type: integer
+        usersByRole:
+          type: object
+          additionalProperties:
+            type: integer
+        usersByStatus:
+          type: object
+          additionalProperties:
+            type: integer
+        totalCategories:
+          type: integer
+        activeCategories:
+          type: integer
+        totalReports:
+          type: integer
+        reportsLast30Days:
+          type: integer
+
+    # -------------------------------------------------------------------
+    # Statistiques
+    #
+    # Note de contrat : aucun endpoint GET /statistics/categories n'est
+    # défini volontairement. La répartition par catégorie est déjà exposée
+    # par le champ byCategory ci-dessous ; un endpoint dédié ne ferait que
+    # renvoyer une tranche d'un agrégat déjà disponible.
+    # -------------------------------------------------------------------
 
     StatisticsResponse:
       type: object
@@ -1503,10 +1743,32 @@ components:
           type: object
           additionalProperties:
             type: integer
+        byDistrict:
+          type: object
+          description: >
+            Répartition des signalements par quartier. Exigence explicite du
+            sujet officiel EPF (« statistiques par catégorie / quartier »).
+          additionalProperties:
+            type: integer
         averageProcessingHours:
           type: number
         targetComplianceRate:
           type: number
+
+    TimelinePointResponse:
+      type: object
+      description: Point unique d'une série temporelle de signalements.
+      properties:
+        date:
+          type: string
+          format: date
+          description: Début de la période agrégée (jour, semaine ou mois).
+        createdCount:
+          type: integer
+          description: Signalements créés sur la période.
+        resolvedCount:
+          type: integer
+          description: Signalements passés à RESOLU sur la période.
 
     AgentStatisticsResponse:
       type: object

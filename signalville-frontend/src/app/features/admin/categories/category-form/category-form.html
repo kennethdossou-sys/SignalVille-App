@@ -1,0 +1,58 @@
+<div class="category-form-page">
+  <header class="page-header">
+    <h1>{{ isEditMode() ? 'Modifier la catégorie' : 'Nouvelle catégorie' }}</h1>
+    <a routerLink="/admin/categories" class="back-link">← Retour à la liste</a>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <p>Chargement…</p>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+      <label>
+        Nom
+        <input type="text" formControlName="name" />
+        @if (form.get('name')?.invalid && form.get('name')?.touched) {
+          <span class="field-error">Le nom est obligatoire.</span>
+        }
+      </label>
+
+      <label>
+        Description
+        <textarea formControlName="description" rows="3"></textarea>
+      </label>
+
+      <label>
+        Icône (nom identifiant)
+        <input type="text" formControlName="icon" placeholder="ex: trash, road, droplet" />
+      </label>
+
+      <label>
+        Priorité par défaut
+        <select formControlName="defaultPriority">
+          @for (priority of priorities; track priority) {
+            <option [value]="priority">{{ priority }}</option>
+          }
+        </select>
+      </label>
+
+      <label>
+        Délai cible (heures)
+        <input type="number" formControlName="targetDelayHours" min="1" />
+        @if (form.get('targetDelayHours')?.invalid && form.get('targetDelayHours')?.touched) {
+          <span class="field-error">Le délai doit être d'au moins 1 heure.</span>
+        }
+      </label>
+
+      <div class="actions">
+        <button type="submit" [disabled]="submitting()">
+          {{ submitting() ? 'Enregistrement…' : (isEditMode() ? 'Enregistrer' : 'Créer') }}
+        </button>
+        <a routerLink="/admin/categories" class="secondary-btn">Annuler</a>
+      </div>
+    </form>
+  }
+</div>

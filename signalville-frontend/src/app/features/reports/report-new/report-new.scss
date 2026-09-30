@@ -12,9 +12,9 @@
   max-width: 640px;
   margin: 0 auto;
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 2rem;
-  box-shadow: 0 2px 12px rgba(30, 58, 138, 0.06);
+  box-shadow: var(--shadow-md);
 }
 
 h1 {

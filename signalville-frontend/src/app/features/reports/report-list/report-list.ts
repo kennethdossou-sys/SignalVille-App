@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
-import { Reports } from '../reports';
+import { Reports } from '../../../core/services/reports';
 import { ReportResponse, ReportStatus } from '../../../shared/models/api.models';
 
 // Statuts affichables dans le filtre, avec libellé français.

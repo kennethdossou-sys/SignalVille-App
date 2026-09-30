@@ -1,6 +1,9 @@
-<header class="app-bar">
-  <strong>SignalVille</strong>
-  <span>Plateforme de signalement d'incidents urbains</span>
-</header>
+<app-header />
 
 <router-outlet />
+
+<app-footer />
+
+@if (loadingService.isLoading()) {
+  <app-loader mode="fullscreen" />
+}

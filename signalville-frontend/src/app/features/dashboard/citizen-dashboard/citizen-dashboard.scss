@@ -1,0 +1,301 @@
+.dashboard-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+
+.brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #1e3a8a;
+  text-decoration: none;   // ← ajouté : évite le soulignement par défaut des liens
+}
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .user-name {
+    font-size: 0.9rem;
+    color: #374151;
+  }
+
+  .role-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    background: #dbeafe;
+    color: #1e3a8a;
+  }
+
+  .logout-btn {
+    background: none;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: #6b7280;
+
+    &:hover {
+      background: #f3f4f6;
+    }
+  }
+}
+
+.content {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2.25rem;
+
+  h1 {
+    color: #111827;
+    margin: 0 0 0.3rem;
+  }
+
+  .subtitle {
+    color: #6b7280;
+    margin: 0;
+    font-size: 0.92rem;
+  }
+}
+
+.cta-btn {
+  background: var(--color-accent);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    background: var(--color-accent-dark);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.loading-state,
+.error-state {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.error-state {
+  color: #dc2626;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.1rem;
+  margin-bottom: 2.75rem;
+}
+
+.kpi-card {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  transition: box-shadow 0.15s;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .kpi-label {
+    font-size: 0.8rem;
+    color: #6b7280;
+  }
+
+  .kpi-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #111827;
+  }
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  h2 {
+    font-size: 1.1rem;
+    color: #111827;
+    margin: 0;
+  }
+
+  .see-all {
+    font-size: 0.85rem;
+    color: #1e3a8a;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background: #ffffff;
+  border: 1px dashed #d1d5db;
+  border-radius: 10px;
+
+  p {
+    color: #6b7280;
+    margin-bottom: 1rem;
+  }
+}
+
+.report-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.report-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: #f8fafc;
+  }
+}
+
+.report-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+
+  .report-reference {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    font-family: monospace;
+  }
+
+  .report-title {
+    font-size: 0.92rem;
+    color: #111827;
+    font-weight: 500;
+  }
+}
+
+.report-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  .report-date {
+    font-size: 0.8rem;
+    color: #9ca3af;
+  }
+}
+
+// Couleurs des status-badge : définies globalement dans styles.scss
+// pour rester cohérentes avec la liste, le détail et la carte.
+
+// ============================================================
+// Bloc pédagogique "Comment signaler" (Priorité 3 du brief UI/UX)
+// ============================================================
+
+.how-it-works {
+  margin-top: 2.75rem;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-sm);
+
+  h2 {
+    font-size: 1.05rem;
+    color: #111827;
+    margin: 0 0 1.25rem;
+  }
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-dark);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.step-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.step-text {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.45;
+}
+
+@media (max-width: 720px) {
+  .steps {
+    grid-template-columns: 1fr;
+  }
+}

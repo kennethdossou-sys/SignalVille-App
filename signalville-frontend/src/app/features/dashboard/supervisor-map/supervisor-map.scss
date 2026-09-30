@@ -1,0 +1,318 @@
+.supervisor-map-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 2rem 2.5rem;
+}
+
+.page-header {
+  margin-bottom: 1.25rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.4rem;
+  }
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.3rem;
+}
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #15803d;
+  background: #dcfce7;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-pill);
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+    animation: live-pulse 1.8s ease-in-out infinite;
+  }
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.back-link {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-accent-dark);
+  }
+}
+
+.alert-error {
+  background: #fdecea;
+  color: #b3261e;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1rem;
+}
+
+.map-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+}
+
+// ============================================================
+// Sidebar : filtres (chips), légende, liste synchronisée
+// ============================================================
+
+.sidebar {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.filter-group,
+.legend {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1rem 1.1rem;
+
+  h2 {
+    margin: 0 0 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6b7280;
+  }
+}
+
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: #ffffff;
+  color: #374151;
+  font-size: 0.76rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+
+  &:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent-dark);
+  }
+
+  &--active {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #ffffff;
+    font-weight: 600;
+
+    &:hover {
+      color: #ffffff;
+    }
+  }
+}
+
+.legend ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.78rem;
+  color: #374151;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.report-list-panel {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+.report-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+
+  h2 {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6b7280;
+  }
+
+  .count {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--color-accent-dark);
+    background: var(--color-accent-soft);
+    padding: 0.1rem 0.5rem;
+    border-radius: var(--radius-pill);
+  }
+}
+
+.list-state {
+  font-size: 0.82rem;
+  color: #9ca3af;
+  font-style: italic;
+  margin: 0.25rem 0;
+}
+
+.report-mini-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.report-mini-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.5rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.12s;
+
+  &:hover {
+    background: #f8fafc;
+  }
+
+  &--active {
+    background: var(--color-accent-soft);
+  }
+
+  .dot {
+    margin-top: 0;
+  }
+}
+
+.report-mini-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  .ref {
+    font-size: 0.66rem;
+    color: #9ca3af;
+    font-family: monospace;
+  }
+
+  .title {
+    font-size: 0.82rem;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// ============================================================
+// Carte
+// ============================================================
+
+.map-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.map-container {
+  height: 680px;
+  width: 100%;
+}
+
+.map-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 1000;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+// Marqueurs colores par statut — voir STATUS_COLORS dans le .ts
+::ng-deep .status-marker span {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 1100px) {
+  .map-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .map-wrapper {
+    flex: none;
+    width: 100%;
+  }
+
+  .map-container {
+    height: 480px;
+  }
+}

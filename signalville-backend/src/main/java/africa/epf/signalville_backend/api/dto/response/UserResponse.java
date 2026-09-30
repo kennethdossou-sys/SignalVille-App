@@ -15,6 +15,7 @@ public record UserResponse(
         Role role,
         AccountStatus status,
         LocalDateTime createdAt,
-        LocalDateTime lastLoginAt
+        LocalDateTime lastLoginAt,
+        boolean mustChangePassword
 ) {
 }

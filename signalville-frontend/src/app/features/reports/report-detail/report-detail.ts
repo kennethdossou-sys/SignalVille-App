@@ -5,8 +5,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import * as L from 'leaflet';
 
-import { Reports } from '../reports';
-import { Interventions } from '../../interventions/interventions';
+import { Reports } from '../../../core/services/reports';
+import { Interventions } from '../../../core/services/interventions';
 import { ReportDetailResponse, InterventionResponse, NoteResponse } from '../../../shared/models/api.models';
 
 // Photo une fois téléchargée et convertie en URL locale affichable.

@@ -11,9 +11,9 @@
   width: 100%;
   max-width: 460px;
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 2.5rem 2rem;
-  box-shadow: 0 4px 24px rgba(30, 58, 138, 0.08);
+  box-shadow: var(--shadow-lg);
 }
 
 .brand {
@@ -113,22 +113,25 @@
 button[type='submit'] {
   width: 100%;
   padding: 0.75rem;
-  background: #1e3a8a;
+  background: var(--color-accent);
   color: #ffffff;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 0.95rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   margin-top: 0.5rem;
-  transition: background 0.15s;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, box-shadow 0.15s;
 
   &:hover:not(:disabled) {
-    background: #1e40af;
+    background: var(--color-accent-dark);
+    box-shadow: var(--shadow-md);
   }
 
   &:disabled {
     background: #9ca3af;
+    box-shadow: none;
     cursor: not-allowed;
   }
 }

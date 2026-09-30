@@ -1,0 +1,234 @@
+.supervisor-dashboard {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 2rem 2.5rem;
+}
+
+.alert-error {
+  background: #fdecea;
+  color: #b3261e;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1rem;
+}
+
+.panel {
+  margin-bottom: 2.5rem;
+}
+
+.empty {
+  color: #666;
+  font-style: italic;
+}
+
+.report-card {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  transition: box-shadow 0.15s;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+  }
+
+  h3 {
+    margin: 0.25rem 0;
+  }
+
+  .category {
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .reference {
+    font-family: monospace;
+    color: #555;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+
+  button {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    background: var(--color-accent);
+    color: white;
+    font-weight: 500;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) {
+      background: var(--color-accent-dark);
+    }
+
+    &.secondary {
+      background: #eee;
+      color: #333;
+    }
+
+    &.secondary:hover {
+      background: #e2e2e2;
+    }
+
+    &.danger {
+      background: #d32f2f;
+    }
+
+    &.danger:hover {
+      background: #b71c1c;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.assign-form,
+.reject-form,
+.reopen-form {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #eee;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: inherit;
+  }
+}
+
+// ============ KPI (Module 3 — Séance 4) ============
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1.1rem;
+  margin-bottom: 2.25rem;
+}
+
+.kpi-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1.35rem 1rem;
+  text-align: center;
+  background: #ffffff;
+  transition: box-shadow 0.15s;
+
+  &:hover { box-shadow: var(--shadow-md); }
+
+  &--warning {
+    background: #fff8e1;
+    border-color: #ffe082;
+  }
+
+  &--critical {
+    background: #ffebee;
+    border-color: #ffcdd2;
+  }
+}
+
+.kpi-value {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.kpi-card--warning .kpi-value {
+  color: #f57f17;
+}
+
+.kpi-card--critical .kpi-value {
+  color: #c62828;
+}
+
+.kpi-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+// ============ Alerte incidents critiques ============
+
+.panel--critical {
+  background: #fff5f5;
+  border: 1px solid #ffcdd2;
+  border-radius: var(--radius-md);
+  padding: 1.1rem 1.25rem;
+  box-shadow: var(--shadow-sm);
+
+  h2 {
+    color: #c62828;
+    margin-top: 0;
+  }
+}
+
+.critical-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #ffe0e0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+.page-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.map-link {
+  background: var(--color-accent);
+  color: white;
+  text-decoration: none;
+  padding: 0.55rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    background: var(--color-accent-dark);
+    box-shadow: var(--shadow-md);
+  }
+}

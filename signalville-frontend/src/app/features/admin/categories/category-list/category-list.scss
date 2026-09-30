@@ -1,0 +1,143 @@
+.category-list {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0;
+  }
+}
+
+.cta-btn {
+  background: var(--color-accent);
+  color: white;
+  text-decoration: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    background: var(--color-accent-dark);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.alert-error {
+  background: #fdecea;
+  color: #b3261e;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1rem;
+}
+
+.empty {
+  color: #666;
+  font-style: italic;
+}
+
+.category-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+
+  th, td {
+    text-align: left;
+    padding: 0.85rem 1.1rem;
+  }
+
+  thead {
+    background: #f9fafb;
+
+    th {
+      font-size: 0.75rem;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+  }
+
+  tbody tr {
+    border-top: 1px solid #f3f4f6;
+    transition: background 0.1s;
+
+    &:hover {
+      background: #fafbfc;
+    }
+
+    &.inactive {
+      opacity: 0.6;
+    }
+  }
+
+  .description {
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 0.2rem;
+  }
+}
+
+.status-badge {
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 600;
+
+  &--active {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  &--inactive {
+    background: #f3f4f6;
+    color: #6b7280;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+
+  button {
+    padding: 0.4rem 0.85rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    background: var(--color-accent);
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) {
+      background: var(--color-accent-dark);
+    }
+
+    &.secondary {
+      background: #eee;
+      color: #333;
+    }
+
+    &.secondary:hover {
+      background: #e2e2e2;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}

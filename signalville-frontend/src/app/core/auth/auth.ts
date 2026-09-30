@@ -110,4 +110,13 @@ getAccessToken(): string | null {
 getRefreshToken(): string | null {
   return localStorage.getItem(this.REFRESH_TOKEN_KEY);
 }
+/**
+ * Met a jour le UserResponse stocke localement apres une modification
+ * du profil, sans re-emettre les tokens. Evite un GET /users/me
+ * supplementaire et garde le header / dashboard synchronises.
+ */
+syncCurrentUser(user: UserResponse): void {
+  localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+  this.currentUser.set(user);
+}
 }

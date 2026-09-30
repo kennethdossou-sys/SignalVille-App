@@ -58,6 +58,7 @@ export interface UserResponse {
   status: AccountStatus;
   createdAt: string;
   lastLoginAt: string | null;
+  mustChangePassword: boolean;
 }
 
 export interface UpdateProfileRequest {
@@ -72,6 +73,14 @@ export interface CreateInternalUserRequest {
   email: string;
   phone: string;
   role: 'AGENT' | 'SUPERVISEUR' | 'ADMINISTRATEUR';
+  sendByEmail: boolean;
+}
+
+export interface CreateInternalUserResponse {
+  user: UserResponse;
+  temporaryPassword: string;
+  emailSent: boolean;
+  emailError: string | null;
 }
 
 export interface AdminUpdateUserRequest {
@@ -265,6 +274,60 @@ export interface NotificationPage {
 }
 
 // ============================================
+// DASHBOARDS (Module 3)
+// ============================================
+
+export interface CitizenDashboardResponse {
+  totalReports: number;
+  byStatus: Record<string, number>;
+  openReports: number;
+  resolvedReports: number;
+  unreadNotifications: number;
+  recentReports: ReportResponse[];
+}
+
+export interface AgentDashboardResponse {
+  assignedCount: number;
+  inProgressCount: number;
+  resolvedCount: number;
+  averageProcessingHours: number;
+  unreadNotifications: number;
+  currentInterventions: ReportResponse[];
+}
+
+export interface AdminDashboardResponse {
+  totalUsers: number;
+  usersByRole: Record<string, number>;
+  usersByStatus: Record<string, number>;
+  totalCategories: number;
+  activeCategories: number;
+  totalReports: number;
+  reportsLast30Days: number;
+}
+
+export interface SupervisorDashboardResponse {
+  unassignedCount: number;
+  reopenedCount: number;
+  last24HoursCount: number;
+  inProgressCount: number;
+  toVerifyCount: number;
+  closedCount: number;
+  criticalCount: number;
+  byStatus: Record<string, number>;
+  byCategory: Record<string, number>;
+  byDistrict: Record<string, number>;
+  reportsToVerify: ReportResponse[];
+  criticalReports: ReportResponse[];
+  reopenedReports: ReportResponse[];
+  unassignedReports: ReportResponse[];
+}
+
+export interface CreateInternalUserResponse {
+  user: UserResponse;
+  temporaryPassword: string;
+}
+
+// ============================================
 // COMMON
 // ============================================
 
@@ -275,4 +338,20 @@ export interface ErrorResponse {
   message: string;
   path: string;
   validationErrors?: Record<string, string>;
+}
+
+
+// ============================================
+// PROFILE
+// ============================================
+export interface UpdateProfileRequest {
+  firstName: string;
+  lastName: string;
+  phone: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
 }

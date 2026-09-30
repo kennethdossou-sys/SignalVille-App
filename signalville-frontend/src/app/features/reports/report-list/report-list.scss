@@ -1,7 +1,7 @@
 .report-list-page {
-  max-width: 1000px;
+  max-width: 1040px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2.5rem 1.5rem;
 }
 
 .list-header {
@@ -15,17 +15,19 @@
 }
 
 .cta-btn {
-  background: #f97316;
+  background: var(--color-accent);
   color: #ffffff;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 0.65rem 1.1rem;
   font-size: 0.88rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, box-shadow 0.15s;
 
-  &:hover { background: #ea580c; }
+  &:hover { background: var(--color-accent-dark); box-shadow: var(--shadow-md); }
 }
 
 .filters {
@@ -70,20 +72,21 @@
 .report-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1rem;
+  gap: 1.1rem;
 }
 
 .report-card {
   display: block;
   background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   padding: 1.1rem;
   text-decoration: none;
   color: inherit;
   transition: box-shadow 0.15s, border-color 0.15s;
 
-  &:hover { box-shadow: 0 2px 10px rgba(30, 58, 138, 0.08); border-color: #bfdbfe; }
+  &:hover { box-shadow: var(--shadow-md); border-color: #bfdbfe; }
 }
 
 .card-top {
@@ -100,28 +103,8 @@
 
 .card-badges { display: flex; gap: 0.5rem; }
 
-.status-badge, .priority-badge {
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 0.22rem 0.55rem;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-
-// Palette de statuts identique partout dans l'app (Dashboard, Liste, Détail).
-.status-NOUVEAU { background: #dbeafe; color: #1e40af; }
-.status-AFFECTE { background: #ede9fe; color: #6d28d9; }
-.status-EN_COURS { background: #ffedd5; color: #c2410c; }
-.status-RESOLU { background: #dcfce7; color: #15803d; }
-.status-CLOTURE { background: #f3f4f6; color: #374151; }
-.status-REOUVERT { background: #fef9c3; color: #a16207; }
-.status-REJETE { background: #fee2e2; color: #b91c1c; }
-.status-ANNULE { background: #f3f4f6; color: #9ca3af; }
-
-.priority-BASSE { background: #f3f4f6; color: #6b7280; }
-.priority-MOYENNE { background: #dbeafe; color: #1e40af; }
-.priority-HAUTE { background: #ffedd5; color: #c2410c; }
-.priority-CRITIQUE { background: #fee2e2; color: #b91c1c; }
+// Couleurs des status-badge / priority-badge : définies globalement
+// dans styles.scss pour rester cohérentes avec le dashboard et le détail.
 
 .pagination {
   display: flex;

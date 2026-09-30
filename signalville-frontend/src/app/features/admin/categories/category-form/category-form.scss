@@ -1,0 +1,118 @@
+.category-form-page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.3rem;
+  }
+}
+
+.back-link {
+  font-size: 0.85rem;
+  color: var(--color-navy);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.alert-error {
+  background: #fdecea;
+  color: #b3261e;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1rem;
+}
+
+.form {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+  }
+
+  input,
+  textarea,
+  select {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.9rem;
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-navy);
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
+    }
+  }
+}
+
+.field-error {
+  color: #b3261e;
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+
+  button {
+    padding: 0.65rem 1.3rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    background: var(--color-accent);
+    color: white;
+    font-weight: 600;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) {
+      background: var(--color-accent-dark);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.secondary-btn {
+  padding: 0.65rem 1.3rem;
+  border-radius: var(--radius-sm);
+  background: #eee;
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+
+  &:hover {
+    background: #ddd;
+  }
+}
