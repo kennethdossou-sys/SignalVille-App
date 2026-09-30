@@ -10,6 +10,7 @@ public record CreateInternalUserRequest(
         @NotBlank String lastName,
         @NotBlank @Email String email,
         @NotBlank String phone,
-        @NotNull Role role
+        @NotNull Role role,
+        boolean sendByEmail
 ) {
 }

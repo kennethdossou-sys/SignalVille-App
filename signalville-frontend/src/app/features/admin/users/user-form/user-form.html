@@ -12,6 +12,17 @@
         <strong>{{ createdUserEmail() }}</strong> — il ne sera plus jamais affiché.
       </p>
       <div class="password-box">{{ createdTemporaryPassword() }}</div>
+
+      @if (createdEmailSent()) {
+        <p class="alert alert-success">
+          ✓ Un email contenant ces identifiants a été envoyé à <strong>{{ createdUserEmail() }}</strong>.
+        </p>
+      } @else if (createdEmailError()) {
+        <p class="alert alert-warning">
+          ⚠ L’envoi de l’email a échoué ({{ createdEmailError() }}). Communiquez le mot de passe autrement.
+        </p>
+      }
+
       <button type="button" (click)="goToList()">Retour à la liste</button>
     </div>
   } @else {
@@ -72,6 +83,14 @@
           <p class="field-hint">
             Un mot de passe temporaire sera généré automatiquement à la création.
           </p>
+
+          <label class="checkbox">
+            <input type="checkbox" formControlName="sendByEmail" />
+            <span>Envoyer les identifiants par email à l’utilisateur</span>
+          </label>
+          <span class="field-hint">
+            Décochez si vous préférez communiquer le mot de passe autrement (en personne, par SMS…).
+          </span>
         }
 
         <div class="actions">

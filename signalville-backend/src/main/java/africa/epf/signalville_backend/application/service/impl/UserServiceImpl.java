@@ -21,6 +21,7 @@ import africa.epf.signalville_backend.api.dto.response.UserPage;
 import africa.epf.signalville_backend.api.dto.response.UserResponse;
 import africa.epf.signalville_backend.application.mapper.UserMapper;
 import africa.epf.signalville_backend.application.service.UserService;
+import africa.epf.signalville_backend.application.service.MailService;
 import africa.epf.signalville_backend.domain.exception.BusinessRuleException;
 import africa.epf.signalville_backend.domain.exception.ResourceNotFoundException;
 import africa.epf.signalville_backend.domain.model.AccountStatus;
@@ -46,6 +47,8 @@ public class UserServiceImpl implements UserService {
     private final InterventionRepository interventionRepository;
     private final ReportRepository reportRepository;
     private final PasswordEncoder passwordEncoder;
+    private final MailService mailService;
+    
 
     @Override
     @Transactional(readOnly = true)
@@ -122,9 +125,22 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         User saved = userRepository.save(user);
-        return new CreateInternalUserResponse(UserMapper.toResponse(saved), temporaryPassword);
-    }
 
+        // Envoi conditionnel de l'email de bienvenue.
+        // Un echec d'envoi ne fait PAS echouer la creation du compte :
+        // l'admin voit temporaryPassword a l'ecran et peut le communiquer
+        // autrement. Le retour EmailResult renseigne l'admin sur l'issue.
+        MailService.EmailResult emailResult = request.sendByEmail()
+                ? mailService.sendWelcomeInternalAccount(saved, temporaryPassword)
+                : new MailService.EmailResult(false, null);
+
+        return new CreateInternalUserResponse(
+                UserMapper.toResponse(saved),
+                temporaryPassword,
+                emailResult.sent(),
+                emailResult.errorMessage());
+    }
+    
     @Override
     @Transactional
     public UserResponse update(UUID userId, AdminUpdateUserRequest request) {

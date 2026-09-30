@@ -73,6 +73,14 @@ export interface CreateInternalUserRequest {
   email: string;
   phone: string;
   role: 'AGENT' | 'SUPERVISEUR' | 'ADMINISTRATEUR';
+  sendByEmail: boolean;
+}
+
+export interface CreateInternalUserResponse {
+  user: UserResponse;
+  temporaryPassword: string;
+  emailSent: boolean;
+  emailError: string | null;
 }
 
 export interface AdminUpdateUserRequest {

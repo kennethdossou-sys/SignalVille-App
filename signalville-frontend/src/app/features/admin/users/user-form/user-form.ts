@@ -28,6 +28,8 @@ export class UserForm implements OnInit {
 
   readonly createdTemporaryPassword = signal<string | null>(null);
   readonly createdUserEmail = signal<string | null>(null);
+  readonly createdEmailSent = signal(false);
+  readonly createdEmailError = signal<string | null>(null);
 
   readonly internalRoles: InternalRole[] = ['AGENT', 'SUPERVISEUR', 'ADMINISTRATEUR'];
 
@@ -37,6 +39,7 @@ export class UserForm implements OnInit {
     email: ['', [Validators.required, Validators.email]],
     phone: ['', [Validators.required]],
     role: ['AGENT' as InternalRole, [Validators.required]],
+    sendByEmail: [true],
   });
 
   ngOnInit(): void {
@@ -46,6 +49,7 @@ export class UserForm implements OnInit {
       this.userId.set(id);
       this.loading.set(true);
       this.form.get('email')?.disable();
+      this.form.get('sendByEmail')?.disable(); // non applicable en edition
 
       this.usersService.getById(id).subscribe({
         next: user => {
@@ -99,12 +103,15 @@ export class UserForm implements OnInit {
         email: this.form.value.email!,
         phone: this.form.value.phone!,
         role: this.form.value.role! as InternalRole,
+        sendByEmail: this.form.value.sendByEmail ?? false,
       };
       this.usersService.create(payload).subscribe({
         next: response => {
           this.submitting.set(false);
           this.createdTemporaryPassword.set(response.temporaryPassword);
           this.createdUserEmail.set(response.user.email);
+          this.createdEmailSent.set(response.emailSent);
+          this.createdEmailError.set(response.emailError);
         },
         error: () => {
           this.errorMessage.set('Échec de la création. L’adresse email est peut-être déjà utilisée.');

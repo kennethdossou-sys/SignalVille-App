@@ -7,6 +7,7 @@ import {
   AccountStatus,
   AdminUpdateUserRequest,
   CreateInternalUserRequest,
+  CreateInternalUserResponse,
   Role,
   UserPage,
   UserResponse,
@@ -25,6 +26,10 @@ export interface UserSearchParams {
  * l'administrateur (Module 3). create() retourne un mot de passe temporaire
  * en clair, affiche une seule fois cote UI (decision Seance 4, option d2) —
  * ne jamais le persister ni le reafficher ailleurs.
+ *
+ * Depuis Seance 5 : create() accepte sendByEmail et retourne emailSent /
+ * emailError pour signaler l'issue de l'envoi Mailtrap sans bloquer la
+ * creation.
  */
 @Injectable({ providedIn: 'root' })
 export class Users {
@@ -46,8 +51,8 @@ export class Users {
     return this.http.get<UserResponse>(`${this.baseUrl}/${id}`);
   }
 
-  create(payload: CreateInternalUserRequest): Observable<{ user: UserResponse; temporaryPassword: string }> {
-    return this.http.post<{ user: UserResponse; temporaryPassword: string }>(this.baseUrl, payload);
+  create(payload: CreateInternalUserRequest): Observable<CreateInternalUserResponse> {
+    return this.http.post<CreateInternalUserResponse>(this.baseUrl, payload);
   }
 
   update(id: string, payload: AdminUpdateUserRequest): Observable<UserResponse> {
