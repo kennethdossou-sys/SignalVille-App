@@ -1,0 +1,217 @@
+// ============================================
+// Layout général de la page
+// ============================================
+
+.report-new-page {
+  min-height: 100vh;
+  background: #f8fafc;
+  padding: 2rem 1rem;
+}
+
+.form-card {
+  max-width: 640px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+}
+
+h1 {
+  color: #111827;
+  font-size: 1.4rem;
+  margin: 0 0 0.3rem;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin: 0 0 1.5rem;
+}
+
+// ============================================
+// Alertes globales (erreurs de chargement, etc.)
+// ============================================
+
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-bottom: 1.25rem;
+
+  &.alert-error {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+  }
+}
+
+// ============================================
+// Champs de formulaire standard (texte, textarea, select)
+// ============================================
+
+.field {
+  margin-bottom: 1.1rem;
+  display: flex;
+  flex-direction: column;
+
+  label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.35rem;
+  }
+
+  input,
+  textarea,
+  select {
+    padding: 0.65rem 0.85rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.92rem;
+    font-family: inherit;
+
+    &:focus {
+      outline: none;
+      border-color: #1e3a8a;
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
+    }
+  }
+
+  textarea {
+    resize: vertical;
+  }
+}
+
+.field-row {
+  display: flex;
+  gap: 1rem;
+
+  .field {
+    flex: 1;
+  }
+}
+
+.field-error {
+  color: #dc2626;
+  font-size: 0.78rem;
+  margin-top: 0.3rem;
+}
+
+// ============================================
+// Bloc carte Leaflet (localisation)
+// ============================================
+
+.geoloc-btn {
+  background: #eff6ff;
+  color: #1e3a8a;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-bottom: 0.6rem;
+
+  &:hover {
+    background: #dbeafe;
+  }
+}
+
+.map-hint {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0 0 0.5rem;
+}
+
+// Leaflet a besoin d'une hauteur explicite sur son conteneur,
+// sinon la carte reste invisible (hauteur 0 par défaut d'un div vide).
+.map-container {
+  height: 320px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  overflow: hidden;
+}
+
+.location-confirmed {
+  font-size: 0.82rem;
+  color: #15803d;
+  margin-top: 0.5rem;
+}
+
+// ============================================
+// Upload et aperçu des photos
+// ============================================
+
+.photo-input {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.photo-grid {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.photo-thumb {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #d1d5db;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.remove-photo-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: rgba(220, 38, 38, 0.85);
+  }
+}
+
+// ============================================
+// Bouton de soumission
+// ============================================
+
+button[type='submit'] {
+  width: 100%;
+  padding: 0.75rem;
+  background: #f97316;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 0.5rem;
+
+  &:hover:not(:disabled) {
+    background: #ea580c;
+  }
+
+  &:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+  }
+}

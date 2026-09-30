@@ -1,0 +1,357 @@
+export type Role = 'CITOYEN' | 'AGENT' | 'SUPERVISEUR' | 'ADMINISTRATEUR';
+
+export type AccountStatus = 'ACTIF' | 'SUSPENDU' | 'DESACTIVE';
+
+export type ReportStatus = 'NOUVEAU' | 'AFFECTE' | 'EN_COURS' | 'RESOLU' | 'REOUVERT' | 'CLOTURE' | 'REJETE' | 'ANNULE';
+
+export type Priority = 'BASSE' | 'MOYENNE' | 'HAUTE' | 'CRITIQUE';
+
+export type NoteType = 'INTERNE' | 'PUBLIC';
+
+
+
+//Interfaces
+
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface RefreshTokenRequest {
+    refreshToken: string;
+}
+
+export interface RegisterRequest{
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    password: string;
+    confirmPassword: string;
+    termsAccepted: boolean;
+}
+
+// ============================================
+// AUTH
+// ============================================
+
+export interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresIn: number;
+  user: UserResponse;
+}
+
+// ============================================
+// USERS
+// ============================================
+
+export interface UserResponse {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  role: Role;
+  status: AccountStatus;
+  createdAt: string;
+  lastLoginAt: string | null;
+  mustChangePassword: boolean;
+}
+
+export interface UpdateProfileRequest {
+  firstName: string;
+  lastName: string;
+  phone: string;
+}
+
+export interface CreateInternalUserRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  role: 'AGENT' | 'SUPERVISEUR' | 'ADMINISTRATEUR';
+  sendByEmail: boolean;
+}
+
+export interface CreateInternalUserResponse {
+  user: UserResponse;
+  temporaryPassword: string;
+  emailSent: boolean;
+  emailError: string | null;
+}
+
+export interface AdminUpdateUserRequest {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  role?: Role;
+}
+
+export interface UserPage {
+  content: UserResponse[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+// ============================================
+// CATEGORIES
+// ============================================
+
+export interface CategoryResponse {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  defaultPriority: Priority;
+  targetDelayHours: number;
+  active: boolean;
+}
+
+export interface CategoryRequest {
+  name: string;
+  description: string;
+  icon: string;
+  defaultPriority: Priority;
+  targetDelayHours: number;
+}
+
+// ============================================
+// REPORTS
+// ============================================
+
+export interface ReportResponse {
+  id: string;
+  reference: string;
+  title: string;
+  description: string;
+  status: ReportStatus;
+  priority: Priority;
+  category: CategoryResponse;
+  latitude: number;
+  longitude: number;
+  address: string;
+  district: string;
+  municipality: string;
+  photos: PhotoResponse[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ReportDetailResponse extends ReportResponse {
+  citizen: UserResponse;
+  activeIntervention: InterventionResponse | null;
+  history: HistoryResponse[];
+}
+
+export interface ReportPage {
+  content: ReportResponse[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+export interface CancelReportRequest {
+  reason: string;
+}
+
+// ============================================
+// PHOTOS
+// ============================================
+
+export interface PhotoResponse {
+  id: string;
+  url: string;
+  description: string;
+  order: number;
+  createdAt: string;
+}
+
+// ============================================
+// INTERVENTIONS (Module 2 - prêt mais non utilisé en S2)
+// ============================================
+
+export type InterventionStatus = 'AFFECTEE' | 'EN_COURS' | 'RESOLUE' | 'REAFFECTEE' | 'INTERROMPUE';
+
+export interface InterventionResponse {
+  id: string;
+  reportId: string;
+  agent: UserResponse;
+  status: InterventionStatus;
+  assignedAt: string;
+  startedAt: string | null;
+  resolvedAt: string | null;
+  instruction: string;
+  resolutionComment: string;
+  proofs: PhotoResponse[];
+}
+
+export interface AssignReportRequest {
+  agentId: string;
+  instruction?: string;
+}
+
+export interface ReassignReportRequest {
+  newAgentId: string;
+  reason: string;
+}
+
+// ============================================
+// HISTORY & NOTES
+// ============================================
+
+export interface HistoryResponse {
+  id: string;
+  previousStatus: ReportStatus | null;
+  newStatus: ReportStatus;
+  comment: string;
+  actor: UserResponse;
+  changedAt: string;
+}
+
+export interface NoteResponse {
+  id: string;
+  content: string;
+  type: NoteType;
+  author: UserResponse;
+  createdAt: string;
+}
+
+export interface CreateNoteRequest {
+  content: string;
+  type: NoteType;
+}
+
+// ============================================
+// AGENTS (Module 2)
+// ============================================
+
+export interface AvailableAgentResponse {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  status: AccountStatus;
+  activeInterventionsCount: number;
+}
+
+// ============================================
+// MODULE 2 — requêtes complémentaires
+// ============================================
+
+export interface RejectReportRequest {
+  reason: string;
+}
+
+export interface ReopenReportRequest {
+  reason: string;
+}
+
+export interface CloseReportRequest {
+  publicComment?: string;
+}
+
+export interface NotificationResponse {
+  id: string;
+  title: string;
+  message: string;
+  read: boolean;
+  link: string;
+  createdAt: string;
+}
+
+export interface NotificationPage {
+  content: NotificationResponse[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+// ============================================
+// DASHBOARDS (Module 3)
+// ============================================
+
+export interface CitizenDashboardResponse {
+  totalReports: number;
+  byStatus: Record<string, number>;
+  openReports: number;
+  resolvedReports: number;
+  unreadNotifications: number;
+  recentReports: ReportResponse[];
+}
+
+export interface AgentDashboardResponse {
+  assignedCount: number;
+  inProgressCount: number;
+  resolvedCount: number;
+  averageProcessingHours: number;
+  unreadNotifications: number;
+  currentInterventions: ReportResponse[];
+}
+
+export interface AdminDashboardResponse {
+  totalUsers: number;
+  usersByRole: Record<string, number>;
+  usersByStatus: Record<string, number>;
+  totalCategories: number;
+  activeCategories: number;
+  totalReports: number;
+  reportsLast30Days: number;
+}
+
+export interface SupervisorDashboardResponse {
+  unassignedCount: number;
+  reopenedCount: number;
+  last24HoursCount: number;
+  inProgressCount: number;
+  toVerifyCount: number;
+  closedCount: number;
+  criticalCount: number;
+  byStatus: Record<string, number>;
+  byCategory: Record<string, number>;
+  byDistrict: Record<string, number>;
+  reportsToVerify: ReportResponse[];
+  criticalReports: ReportResponse[];
+  reopenedReports: ReportResponse[];
+  unassignedReports: ReportResponse[];
+}
+
+export interface CreateInternalUserResponse {
+  user: UserResponse;
+  temporaryPassword: string;
+}
+
+// ============================================
+// COMMON
+// ============================================
+
+export interface ErrorResponse {
+  timestamp: string;
+  status: number;
+  error: string;
+  message: string;
+  path: string;
+  validationErrors?: Record<string, string>;
+}
+
+
+// ============================================
+// PROFILE
+// ============================================
+export interface UpdateProfileRequest {
+  firstName: string;
+  lastName: string;
+  phone: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
+}

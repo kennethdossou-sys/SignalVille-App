@@ -1,0 +1,62 @@
+<div class="category-list">
+  <app-back-button />
+  
+  <header class="page-header">
+    <h1>Gestion des catégories</h1>
+    <a routerLink="/admin/categories/new" class="cta-btn">+ Nouvelle catégorie</a>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <p>Chargement…</p>
+  } @else if (categories().length === 0) {
+    <p class="empty">Aucune catégorie enregistrée.</p>
+  } @else {
+    <table class="category-table">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Priorité par défaut</th>
+          <th>Délai cible</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (category of categories(); track category.id) {
+          <tr [class.inactive]="!category.active">
+            <td>
+              <strong>{{ category.name }}</strong>
+              <div class="description">{{ category.description }}</div>
+            </td>
+            <td>
+              <span class="priority-badge" [class]="'priority-' + category.defaultPriority">
+                {{ category.defaultPriority }}
+              </span>
+            </td>
+            <td>{{ category.targetDelayHours }} h</td>
+            <td>
+              <span class="status-badge" [class.status-badge--active]="category.active" [class.status-badge--inactive]="!category.active">
+                {{ category.active ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td class="actions">
+              <button type="button" (click)="goToEdit(category.id)">Modifier</button>
+              <button
+                type="button"
+                class="secondary"
+                (click)="toggleStatus(category)"
+                [disabled]="actionInProgress() === category.id"
+              >
+                {{ category.active ? 'Désactiver' : 'Activer' }}
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

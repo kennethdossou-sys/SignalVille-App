@@ -1,0 +1,20 @@
+.app-bar {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: #14213d;
+  color: #fff;
+}
+
+.app-bar span {
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #1e3a8a;
+  text-decoration: none;   // ← ajouté : évite le soulignement par défaut des liens
+}

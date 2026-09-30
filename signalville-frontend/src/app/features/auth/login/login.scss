@@ -1,0 +1,159 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef2fb;
+  padding: 2rem 1rem;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 2rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.brand {
+  text-align: center;
+  margin-bottom: 2rem;
+
+  h1 {
+    color: #1e3a8a;
+    font-size: 1.75rem;
+    margin: 0 0 0.25rem;
+  }
+
+  p {
+    color: #6b7280;
+    font-size: 0.85rem;
+    margin: 0;
+  }
+}
+
+h2 {
+  color: #111827;
+  font-size: 1.4rem;
+  margin: 0 0 0.4rem;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin: 0 0 1.5rem;
+}
+
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-bottom: 1.25rem;
+
+  &.alert-error {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+  }
+}
+
+.field {
+  margin-bottom: 1.1rem;
+  display: flex;
+  flex-direction: column;
+
+  label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.35rem;
+  }
+
+  input {
+    padding: 0.65rem 0.85rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.95rem;
+
+    &:focus {
+      outline: none;
+      border-color: #1e3a8a;
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
+    }
+  }
+}
+
+.field-error {
+  color: #dc2626;
+  font-size: 0.78rem;
+  margin-top: 0.3rem;
+}
+
+button[type='submit'] {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--color-accent);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, box-shadow 0.15s;
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-dark);
+    box-shadow: var(--shadow-md);
+  }
+
+  &:disabled {
+    background: #9ca3af;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+}
+
+.divider {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.8rem;
+  margin: 1.5rem 0;
+  position: relative;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: #e5e7eb;
+  }
+
+  &::before {
+    left: 0;
+  }
+
+  &::after {
+    right: 0;
+  }
+}
+
+.register-link {
+  text-align: center;
+  font-size: 0.88rem;
+  color: #6b7280;
+
+  a {
+    color: #1e3a8a;
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

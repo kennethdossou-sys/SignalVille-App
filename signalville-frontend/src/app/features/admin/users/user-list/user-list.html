@@ -1,0 +1,119 @@
+<div class="user-list">
+  <app-back-button />
+  
+  <header class="page-header">
+    <h1>Gestion des utilisateurs</h1>
+    <a routerLink="/admin/users/new" class="cta-btn">+ Nouveau compte interne</a>
+  </header>
+
+  <div class="filters">
+    <select [(ngModel)]="filterRole" (change)="applyFilters()">
+      <option value="">Tous les rôles</option>
+      @for (role of roles; track role) {
+        <option [value]="role">{{ role }}</option>
+      }
+    </select>
+
+    <select [(ngModel)]="filterStatus" (change)="applyFilters()">
+      <option value="">Tous les statuts</option>
+      @for (status of statuses; track status) {
+        <option [value]="status">{{ status }}</option>
+      }
+    </select>
+
+    <input
+      type="text"
+      placeholder="Rechercher par nom ou email…"
+      [(ngModel)]="filterSearch"
+      (keyup.enter)="applyFilters()"
+    />
+    <button type="button" (click)="applyFilters()">Rechercher</button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <p>Chargement…</p>
+  } @else if (users().length === 0) {
+    <p class="empty">Aucun utilisateur trouvé.</p>
+  } @else {
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Rôle</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users(); track user.id) {
+          <tr>
+            <td>{{ user.firstName }} {{ user.lastName }}</td>
+            <td>{{ user.email }}</td>
+            <td><span class="role-badge">{{ user.role }}</span></td>
+            <td>
+              <span class="status-badge status-badge--{{ user.status.toLowerCase() }}">
+                {{ user.status }}
+              </span>
+            </td>
+            <td class="actions">
+              @if (user.role !== 'CITOYEN') {
+                <button type="button" (click)="goToEdit(user.id)">Modifier</button>
+              }
+              <button
+                type="button"
+                class="secondary"
+                (click)="openStatusForm(user)"
+                [disabled]="actionInProgress() === user.id"
+              >
+                Changer statut
+              </button>
+            </td>
+          </tr>
+          @if (changingStatusUserId() === user.id) {
+            <tr class="status-form-row">
+              <td colspan="5">
+                <div class="status-form">
+                  <label>
+                    Nouveau statut
+                    <select [(ngModel)]="newStatus">
+                      @for (status of statuses; track status) {
+                        <option [value]="status">{{ status }}</option>
+                      }
+                    </select>
+                  </label>
+                  <label class="reason-label">
+                    Motif (obligatoire)
+                    <textarea [(ngModel)]="statusReason" rows="2"></textarea>
+                  </label>
+                  <div class="form-actions">
+                    <button type="button" (click)="confirmStatusChange(user.id)" [disabled]="actionInProgress() === user.id">
+                      Confirmer
+                    </button>
+                    <button type="button" class="secondary" (click)="cancelStatusForm()">Annuler</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+
+    @if (totalPages() > 1) {
+      <div class="pagination">
+        <button type="button" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 0">
+          ← Précédent
+        </button>
+        <span>Page {{ currentPage() + 1 }} / {{ totalPages() }} ({{ totalElements() }} au total)</span>
+        <button type="button" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= totalPages() - 1">
+          Suivant →
+        </button>
+      </div>
+    }
+  }
+</div>

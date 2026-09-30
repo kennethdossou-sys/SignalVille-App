@@ -1,0 +1,105 @@
+<div class="user-form-page">
+  <header class="page-header">
+    <h1>{{ isEditMode() ? 'Modifier le compte' : 'Nouveau compte interne' }}</h1>
+    <a routerLink="/admin/users" class="back-link">← Retour à la liste</a>
+  </header>
+
+  @if (createdTemporaryPassword()) {
+    <div class="password-reveal">
+      <h2>Compte créé avec succès</h2>
+      <p>
+        Communiquez ce mot de passe temporaire à
+        <strong>{{ createdUserEmail() }}</strong> — il ne sera plus jamais affiché.
+      </p>
+      <div class="password-box">{{ createdTemporaryPassword() }}</div>
+
+      @if (createdEmailSent()) {
+        <p class="alert alert-success">
+          ✓ Un email contenant ces identifiants a été envoyé à <strong>{{ createdUserEmail() }}</strong>.
+        </p>
+      } @else if (createdEmailError()) {
+        <p class="alert alert-warning">
+          ⚠ L’envoi de l’email a échoué ({{ createdEmailError() }}). Communiquez le mot de passe autrement.
+        </p>
+      }
+
+      <button type="button" (click)="goToList()">Retour à la liste</button>
+    </div>
+  } @else {
+
+    @if (errorMessage()) {
+      <div class="alert alert-error">{{ errorMessage() }}</div>
+    }
+
+    @if (loading()) {
+      <p>Chargement…</p>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+        <label>
+          Prénom
+          <input type="text" formControlName="firstName" />
+          @if (form.get('firstName')?.invalid && form.get('firstName')?.touched) {
+            <span class="field-error">Le prénom est obligatoire.</span>
+          }
+        </label>
+
+        <label>
+          Nom
+          <input type="text" formControlName="lastName" />
+          @if (form.get('lastName')?.invalid && form.get('lastName')?.touched) {
+            <span class="field-error">Le nom est obligatoire.</span>
+          }
+        </label>
+
+        <label>
+          Email
+          <input type="email" formControlName="email" />
+          @if (isEditMode()) {
+            <span class="field-hint">L'email ne peut pas être modifié.</span>
+          }
+          @if (form.get('email')?.invalid && form.get('email')?.touched) {
+            <span class="field-error">Une adresse email valide est requise.</span>
+          }
+        </label>
+
+        <label>
+          Téléphone
+          <input type="tel" formControlName="phone" />
+          @if (form.get('phone')?.invalid && form.get('phone')?.touched) {
+            <span class="field-error">Le téléphone est obligatoire.</span>
+          }
+        </label>
+
+        <label>
+          Rôle
+          <select formControlName="role">
+            @for (role of internalRoles; track role) {
+              <option [value]="role">{{ role }}</option>
+            }
+          </select>
+        </label>
+
+        @if (!isEditMode()) {
+          <p class="field-hint">
+            Un mot de passe temporaire sera généré automatiquement à la création.
+          </p>
+
+          <label class="checkbox">
+            <input type="checkbox" formControlName="sendByEmail" />
+            <span>Envoyer les identifiants par email à l’utilisateur</span>
+          </label>
+          <span class="field-hint">
+            Décochez si vous préférez communiquer le mot de passe autrement (en personne, par SMS…).
+          </span>
+        }
+
+        <div class="actions">
+          <button type="submit" [disabled]="submitting()">
+            {{ submitting() ? 'Enregistrement…' : (isEditMode() ? 'Enregistrer' : 'Créer le compte') }}
+          </button>
+          <a routerLink="/admin/users" class="secondary-btn">Annuler</a>
+        </div>
+      </form>
+    }
+  }
+</div>

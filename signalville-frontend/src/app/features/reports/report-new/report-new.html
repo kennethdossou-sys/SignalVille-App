@@ -1,0 +1,143 @@
+<div class="report-new-page">
+  <div class="form-card">
+    <h1>Nouveau signalement</h1>
+    <p class="subtitle">Décrivez l'incident que vous souhaitez signaler.</p>
+
+    @if (errorMessage()) {
+      <div class="alert alert-error">{{ errorMessage() }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <!-- Titre -->
+      <div class="field">
+        <label for="title">Titre</label>
+        <input
+          id="title"
+          type="text"
+          formControlName="title"
+          placeholder="Ex: Nid de poule dangereux"
+        />
+        @if (form.get('title')?.invalid && form.get('title')?.touched) {
+          <span class="field-error">Le titre doit contenir au moins 5 caractères.</span>
+        }
+      </div>
+
+      <!-- Description -->
+      <div class="field">
+        <label for="description">Description</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          rows="4"
+          placeholder="Décrivez précisément l'incident..."
+        ></textarea>
+        @if (form.get('description')?.invalid && form.get('description')?.touched) {
+          <span class="field-error">La description doit contenir au moins 10 caractères.</span>
+        }
+      </div>
+
+      <!-- Catégorie -->
+      <div class="field">
+        <label for="categoryId">Catégorie</label>
+        <select id="categoryId" formControlName="categoryId">
+          <option value="" disabled selected>Sélectionnez une catégorie</option>
+          @for (category of categories(); track category.id) {
+            <option [value]="category.id">{{ category.name }}</option>
+          }
+        </select>
+        @if (form.get('categoryId')?.invalid && form.get('categoryId')?.touched) {
+          <span class="field-error">Veuillez sélectionner une catégorie.</span>
+        }
+      </div>
+
+      <!-- Localisation : bouton géoloc + carte Leaflet + confirmation -->
+      <div class="field">
+        <label>Localisation</label>
+
+        <button type="button" class="geoloc-btn" (click)="useMyLocation()">
+          📍 Utiliser ma position
+        </button>
+
+        <p class="map-hint">Cliquez sur la carte pour placer un repère, ou faites-le glisser pour ajuster.</p>
+
+        <div #mapContainer class="map-container"></div>
+
+        @if (locationSelected()) {
+          <p class="location-confirmed">
+            ✓ Position sélectionnée ({{ form.get('latitude')?.value | number: '1.4-4' }},
+            {{ form.get('longitude')?.value | number: '1.4-4' }})
+          </p>
+        }
+
+        @if (form.get('latitude')?.invalid && form.get('latitude')?.touched) {
+          <span class="field-error">Veuillez sélectionner un emplacement sur la carte.</span>
+        }
+      </div>
+
+      <!-- Adresse -->
+      <div class="field">
+        <label for="address">Adresse</label>
+        <input
+          id="address"
+          type="text"
+          formControlName="address"
+          placeholder="Ex: Avenue Cheikh Anta Diop"
+        />
+        @if (form.get('address')?.invalid && form.get('address')?.touched) {
+          <span class="field-error">L'adresse est requise.</span>
+        }
+      </div>
+
+      <!-- Quartier / Commune (optionnels) -->
+      <div class="field-row">
+        <div class="field">
+          <label for="district">Quartier (optionnel)</label>
+          <input id="district" type="text" formControlName="district" />
+        </div>
+
+        <div class="field">
+          <label for="municipality">Commune (optionnel)</label>
+          <input id="municipality" type="text" formControlName="municipality" />
+        </div>
+      </div>
+
+      <!-- Photos : upload + aperçu + suppression -->
+      <div class="field">
+        <label>Photos (1 à 3, JPEG ou PNG, 5 Mo max chacune)</label>
+
+        <input
+          #photoInput
+          type="file"
+          accept="image/jpeg,image/png"
+          multiple
+          (change)="onPhotosSelected($event)"
+          class="photo-input"
+        />
+
+        @if (photoError()) {
+          <span class="field-error">{{ photoError() }}</span>
+        }
+
+        @if (photos().length > 0) {
+          <div class="photo-grid">
+            @for (photo of photos(); track photo.previewUrl; let i = $index) {
+              <div class="photo-thumb">
+                <img [src]="photo.previewUrl" [alt]="'Photo ' + (i + 1)" />
+                <button type="button" class="remove-photo-btn" (click)="removePhoto(i)">✕</button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Soumission -->
+      <button type="submit" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          Envoi en cours...
+        } @else {
+          Envoyer le signalement
+        }
+      </button>
+    </form>
+  </div>
+</div>

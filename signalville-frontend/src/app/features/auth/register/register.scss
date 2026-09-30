@@ -1,0 +1,154 @@
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef2fb;
+  padding: 2rem 1rem;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 460px;
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 2rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.brand {
+  text-align: center;
+  margin-bottom: 1.75rem;
+
+  h1 {
+    color: #1e3a8a;
+    font-size: 1.6rem;
+    margin: 0 0 0.25rem;
+  }
+
+  p {
+    color: #6b7280;
+    font-size: 0.85rem;
+    margin: 0;
+  }
+}
+
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin-bottom: 1.25rem;
+
+  &.alert-error {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+  }
+}
+
+.field-row {
+  display: flex;
+  gap: 1rem;
+
+  .field {
+    flex: 1;
+  }
+}
+
+.field {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+
+  label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.35rem;
+  }
+
+  input[type='text'],
+  input[type='email'],
+  input[type='tel'],
+  input[type='password'] {
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.92rem;
+
+    &:focus {
+      outline: none;
+      border-color: #1e3a8a;
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
+    }
+  }
+}
+
+.checkbox-field {
+  label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    font-weight: 400;
+    color: #374151;
+    cursor: pointer;
+  }
+
+  input[type='checkbox'] {
+    margin-top: 0.15rem;
+  }
+
+  a {
+    color: #1e3a8a;
+  }
+}
+
+.field-error {
+  color: #dc2626;
+  font-size: 0.78rem;
+  margin-top: 0.3rem;
+}
+
+button[type='submit'] {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--color-accent);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, box-shadow 0.15s;
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-dark);
+    box-shadow: var(--shadow-md);
+  }
+
+  &:disabled {
+    background: #9ca3af;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+}
+
+.login-link {
+  text-align: center;
+  font-size: 0.88rem;
+  color: #6b7280;
+  margin-top: 1.5rem;
+
+  a {
+    color: #1e3a8a;
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

@@ -6,8 +6,73 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <style>
+  .initial-loader {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    background: #fff;
+    font-family: system-ui, -apple-system, sans-serif;
+    z-index: 9999;
+  }
+  .initial-loader__brand {
+    font-size: 5rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: #1e3a8a;
+    line-height: 1;
+    animation: initial-loader-pulse 1.8s ease-in-out infinite;
+  }
+  .initial-loader__bar {
+    display: flex;
+    gap: 8px;
+    padding: 5px;
+    width: 280px;
+    height: 32px;
+    border: 2px solid #111827;
+    border-radius: 6px;
+  }
+  .initial-loader__bar span {
+    flex: 1;
+    background: #f97316;
+    border-radius: 2px;
+    opacity: 0;
+    animation: initial-loader-fill 1.2s ease-in-out infinite;
+  }
+  .initial-loader__label {
+    color: #4b5563;
+    font-size: 1rem;
+    font-style: italic;
+    margin: 0;
+  }
+  @keyframes initial-loader-fill {
+    0%, 100% { opacity: 0; transform: scaleY(0.6); }
+    40%, 70% { opacity: 1; transform: scaleY(1); }
+  }
+  @keyframes initial-loader-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(0.98); }
+  }
+</style>
 </head>
 <body>
-  <app-root></app-root>
+  <app-root>
+  <!-- Loader initial affiche jusqu'a ce que Angular boot et remplace ce contenu. -->
+  <div class="initial-loader" role="status" aria-live="polite">
+    <div class="initial-loader__brand">SV</div>
+    <div class="initial-loader__bar" aria-hidden="true">
+      <span style="animation-delay: 0ms"></span>
+      <span style="animation-delay: 150ms"></span>
+      <span style="animation-delay: 300ms"></span>
+      <span style="animation-delay: 450ms"></span>
+      <span style="animation-delay: 600ms"></span>
+    </div>
+    <p class="initial-loader__label">Chargement...</p>
+  </div>
+</app-root>
 </body>
 </html>

@@ -1,0 +1,13 @@
+<div class="loader" [class.loader--fullscreen]="mode() === 'fullscreen'" role="status" aria-live="polite">
+  @if (mode() === 'fullscreen') {
+    <div class="loader__brand">SV</div>
+  }
+
+  <div class="loader__bar" aria-hidden="true">
+    @for (i of [0, 1, 2, 3, 4]; track i) {
+      <span class="loader__segment" [style.animation-delay.ms]="i * 150"></span>
+    }
+  </div>
+
+  <p class="loader__label">{{ label() }}</p>
+</div>

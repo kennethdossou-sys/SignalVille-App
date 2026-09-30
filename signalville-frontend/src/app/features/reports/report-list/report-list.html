@@ -1,0 +1,63 @@
+<div class="report-list-page">
+  <div class="list-header">
+    <div>
+      <h1>Mes signalements</h1>
+      <p class="subtitle">Gérez et suivez l'état de vos requêtes citoyennes.</p>
+    </div>
+    <button class="cta-btn" routerLink="/reports/new">+ Nouveau signalement</button>
+  </div>
+
+  <div class="filters">
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Rechercher par référence, titre..."
+      [(ngModel)]="searchTerm"
+      (ngModelChange)="onFilterChange()"
+    />
+
+    <select class="status-filter" [(ngModel)]="selectedStatus" (ngModelChange)="onFilterChange()">
+      <option value="">Tous les statuts</option>
+      @for (option of statusOptions; track option.value) {
+        <option [value]="option.value">{{ option.label }}</option>
+      }
+    </select>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">Chargement...</div>
+  } @else if (errorMessage()) {
+    <div class="error-state">{{ errorMessage() }}</div>
+  } @else if (reports().length === 0) {
+    <div class="empty-state">
+      <p>Aucun signalement ne correspond à votre recherche.</p>
+    </div>
+  } @else {
+    <div class="report-grid">
+      @for (report of reports(); track report.id) {
+        <a class="report-card" [routerLink]="['/reports', report.id]">
+          <div class="card-top">
+            <span class="report-reference">{{ report.reference }}</span>
+            <span class="report-date">{{ report.createdAt | date: 'dd MMM yyyy' }}</span>
+          </div>
+          <h3 class="report-title">{{ report.title }}</h3>
+          <p class="report-category">{{ report.category.name }}</p>
+          <div class="card-badges">
+            <span class="status-badge" [class]="'status-' + report.status">{{ report.status }}</span>
+            <span class="priority-badge" [class]="'priority-' + report.priority">{{ report.priority }}</span>
+          </div>
+        </a>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="pagination">
+        <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 0">&lt;</button>
+        <span class="page-info">
+          Page {{ currentPage() + 1 }} / {{ totalPages() }} — {{ totalElements() }} résultats
+        </span>
+        <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() >= totalPages() - 1">&gt;</button>
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,151 @@
+.agent-dashboard {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.alert-error {
+  background: #fdecea;
+  color: #b3261e;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1rem;
+}
+
+.empty {
+  color: #666;
+  font-style: italic;
+}
+
+.report-card {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  transition: box-shadow 0.15s;
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  h3 { margin: 0.25rem 0; }
+  .category { color: #666; font-size: 0.9rem; }
+  .reference { font-family: monospace; color: #555; }
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+
+  button {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    background: var(--color-accent);
+    color: white;
+    font-weight: 500;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) { background: var(--color-accent-dark); }
+    &.secondary { background: #eee; color: #333; }
+    &.secondary:hover { background: #e2e2e2; }
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
+  }
+}
+
+.notes-panel, .resolve-form {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #eee;
+}
+
+.note {
+  background: #f9f9f9;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+
+  &__author { font-weight: 600; margin-right: 0.5rem; }
+  &__type { color: #888; font-size: 0.75rem; }
+  p { margin: 0.25rem 0 0; }
+}
+
+.note-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+
+  textarea { flex: 1; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
+  button {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: var(--color-accent);
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover { background: var(--color-accent-dark); }
+  }
+}
+
+.resolve-form {
+  label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; }
+  textarea, input[type="file"] { width: 100%; padding: 0.5rem; margin-top: 0.25rem; }
+  textarea { border: 1px solid #ccc; border-radius: 4px; }
+}
+
+// ============ KPI (Module 3 — Séance 4) ============
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1.1rem;
+  margin-bottom: 2.25rem;
+}
+
+.kpi-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1.35rem 1rem;
+  text-align: center;
+  background: #ffffff;
+  transition: box-shadow 0.15s;
+
+  &:hover { box-shadow: var(--shadow-md); }
+
+  &--warning {
+    background: #fff8e1;
+    border-color: #ffe082;
+  }
+}
+
+.kpi-value {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.kpi-card--warning .kpi-value {
+  color: #f57f17;
+}
+
+.kpi-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.25rem;
+}

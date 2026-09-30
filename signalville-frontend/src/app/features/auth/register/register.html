@@ -1,0 +1,90 @@
+<div class="register-page">
+  <div class="register-card">
+    <div class="brand">
+      <h1>SignalVille</h1>
+      <p>Créer un compte citoyen</p>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="alert alert-error">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="field-row">
+        <div class="field">
+          <label for="firstName">Prénom</label>
+          <input id="firstName" type="text" formControlName="firstName" placeholder="Ex: Amadou" />
+          @if (form.get('firstName')?.invalid && form.get('firstName')?.touched) {
+            <span class="field-error">Le prénom doit contenir au moins 2 caractères.</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="lastName">Nom</label>
+          <input id="lastName" type="text" formControlName="lastName" placeholder="Ex: Ndiaye" />
+          @if (form.get('lastName')?.invalid && form.get('lastName')?.touched) {
+            <span class="field-error">Le nom doit contenir au moins 2 caractères.</span>
+          }
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" placeholder="citoyen@dakar.sn" />
+        @if (form.get('email')?.invalid && form.get('email')?.touched) {
+          <span class="field-error">Adresse e-mail invalide.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="phone">Téléphone</label>
+        <input id="phone" type="tel" formControlName="phone" placeholder="+221 77 123 45 67" />
+        @if (form.get('phone')?.invalid && form.get('phone')?.touched) {
+          <span class="field-error">Le numéro de téléphone est requis.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <input id="password" type="password" formControlName="password" />
+        @if (form.get('password')?.invalid && form.get('password')?.touched) {
+          <span class="field-error">8 caractères minimum.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="confirmPassword">Confirmer le mot de passe</label>
+        <input id="confirmPassword" type="password" formControlName="confirmPassword" />
+        @if (form.errors?.['passwordsMismatch'] && form.get('confirmPassword')?.touched) {
+          <span class="field-error">Les mots de passe ne correspondent pas.</span>
+        }
+      </div>
+
+      <div class="field checkbox-field">
+        <label>
+          <input type="checkbox" formControlName="termsAccepted" />
+          J'accepte les <a href="#" (click)="$event.preventDefault()">conditions d'utilisation</a>
+          et la politique de confidentialité.
+        </label>
+        @if (form.get('termsAccepted')?.invalid && form.get('termsAccepted')?.touched) {
+          <span class="field-error">Vous devez accepter les conditions.</span>
+        }
+      </div>
+
+      <button type="submit" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          Inscription en cours...
+        } @else {
+          S'inscrire
+        }
+      </button>
+    </form>
+
+    <p class="login-link">
+      Déjà un compte ?
+      <a routerLink="/login">Se connecter</a>
+    </p>
+  </div>
+</div>

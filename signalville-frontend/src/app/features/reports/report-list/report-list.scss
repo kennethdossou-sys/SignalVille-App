@@ -1,0 +1,129 @@
+.report-list-page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+
+  h1 { color: #111827; margin: 0 0 0.3rem; font-size: 1.4rem; }
+  .subtitle { color: #6b7280; margin: 0; font-size: 0.9rem; }
+}
+
+.cta-btn {
+  background: var(--color-accent);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 1.1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, box-shadow 0.15s;
+
+  &:hover { background: var(--color-accent-dark); box-shadow: var(--shadow-md); }
+}
+
+.filters {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.status-filter {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: #ffffff;
+}
+
+.loading-state, .error-state {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.error-state { color: #dc2626; }
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background: #ffffff;
+  border: 1px dashed #d1d5db;
+  border-radius: 10px;
+  color: #6b7280;
+}
+
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.1rem;
+}
+
+.report-card {
+  display: block;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1.1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.15s, border-color 0.15s;
+
+  &:hover { box-shadow: var(--shadow-md); border-color: #bfdbfe; }
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+
+  .report-reference { font-size: 0.72rem; color: #9ca3af; font-family: monospace; }
+  .report-date { font-size: 0.72rem; color: #9ca3af; }
+}
+
+.report-title { font-size: 0.98rem; color: #111827; margin: 0 0 0.3rem; }
+.report-category { font-size: 0.82rem; color: #6b7280; margin: 0 0 0.75rem; }
+
+.card-badges { display: flex; gap: 0.5rem; }
+
+// Couleurs des status-badge / priority-badge : définies globalement
+// dans styles.scss pour rester cohérentes avec le dashboard et le détail.
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+
+  button {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+
+    &:disabled { opacity: 0.4; cursor: not-allowed; }
+    &:hover:not(:disabled) { background: #f3f4f6; }
+  }
+
+  .page-info { font-size: 0.82rem; color: #6b7280; }
+}
